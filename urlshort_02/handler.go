@@ -48,7 +48,7 @@ type redirectYaml struct {
 	Url  string
 }
 
-func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
+func YAMLHandlerOld(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	parsedYaml := []redirectYaml{}
 
 	err := yaml.Unmarshal(yml, &parsedYaml)
@@ -71,4 +71,35 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 		fallback.ServeHTTP(w, r)
 	}
 	return f, err
+}
+
+func YAMLHandler(yaml []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	parsedYaml, err := parseYAML(yaml)
+	if err != nil {
+		return nil, err
+	}
+	pathMap := buildMap(parsedYaml)
+	//log.Println(pathMap)
+	return MapHandler(pathMap, fallback), nil
+}
+
+func buildMap(redirectYaml []redirectYaml) map[string]string {
+	resultMap := make(map[string]string)
+	for _, item := range redirectYaml {
+		resultMap[item.Path] = item.Url
+	}
+	return resultMap
+}
+
+func parseYAML(yml []byte) ([]redirectYaml, error) {
+	parsedYaml := []redirectYaml{}
+
+	err := yaml.Unmarshal(yml, &parsedYaml)
+	if err != nil {
+		log.Printf("Error parse YAML..")
+	} else {
+		log.Printf("YAML parse successful!")
+	}
+	log.Println("YAML content: ", parsedYaml)
+	return parsedYaml, err
 }
