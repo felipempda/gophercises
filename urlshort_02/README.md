@@ -11,18 +11,15 @@
 
 ```yaml
 felipe.moreno@HOST urlshort-02 % go run main/main.go
-2023/12/31 16:25:50 Registered path "/urlshort-godoc", redirect to "https://godoc.org/github.com/gophercises/urlshort"
-2023/12/31 16:25:50 Registered path "/yaml-godoc", redirect to "https://godoc.org/gopkg.in/yaml.v2"
-2023/12/31 16:25:50 Registered path "/google", redirect to "https://www.google.com"
-2023/12/31 16:25:50 YAML parse successful!
-2023/12/31 16:25:50 YAML content:  [{/urlshort https://github.com/gophercises/urlshort} {/urlshort-final https://github.com/gophercises/urlshort/tree/solution}]
-2023/12/31 16:25:50 Registered path "/urlshort", redirect to URL "https://github.com/gophercises/urlshort"
-2023/12/31 16:25:50 Registered path "/urlshort-final", redirect to URL "https://github.com/gophercises/urlshort/tree/solution"
-2023/12/31 16:26:39 Redirected request to "https://github.com/gophercises/urlshort"
-2023/12/31 16:26:42 Path not found: "/favicon.ico", using fallback
-2023/12/31 16:26:56 Path not found: "/hello", using fallback
-2023/12/31 16:26:56 Path not found: "/favicon.ico", using fallback
-2023/12/31 16:27:31 Redirected request to "https://www.google.com"
+2024/01/01 16:22:45 YAML parse successful!
+2024/01/01 16:22:45 YAML content:  [{/urlshort https://github.com/gophercises/urlshort} {/urlshort-final https://github.com/gophercises/urlshort/tree/solution}]
+2024/01/01 16:22:45 Starting the server on :8080
+2024/01/01 16:23:29 Redirected requested path "/google" to "https://www.google.com"
+2024/01/01 16:23:31 Redirected requested path "/magic" to "https://magic.wizards.com/"
+2024/01/01 16:23:37 Path not found: "/nonexiste", using fallback
+2024/01/01 16:23:37 Path not found: "/favicon.ico", using fallback
+2024/01/01 16:24:11 Redirected requested path "/urlshort" to "https://github.com/gophercises/urlshort"
+2024/01/01 16:24:22 Redirected requested path "/urlshort-final" to "https://github.com/gophercises/urlshort/tree/solution"
 ```
 
 ## Overview from [gophercises](https://github.com/gophercises/urlshort):

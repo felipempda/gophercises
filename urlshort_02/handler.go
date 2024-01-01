@@ -14,23 +14,15 @@ import (
 // http.Handler will be called instead.
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		for path, url := range pathsToUrls {
-			if r.URL.Path == path {
-				log.Printf("Redirected request to %q", url)
-				http.Redirect(w, r, url, http.StatusSeeOther)
-				return
-			}
+		path := r.URL.Path
+		if url, ok := pathsToUrls[path]; ok {
+			log.Printf("Redirected requested path %q to %q\n", path, url)
+			http.Redirect(w, r, url, http.StatusSeeOther)
+			return
 		}
-
-		log.Printf("Path not found: %q, using fallback\n", r.URL.Path)
+		log.Printf("Path not found: %q, using fallback\n", path)
 		fallback.ServeHTTP(w, r)
 	}
-
-	for path, url := range pathsToUrls {
-		http.HandleFunc(path, f)
-		log.Printf("Registered path %q, redirect to %q\n", path, url)
-	}
-
 	return f
 }
 
@@ -70,19 +62,13 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	f := func(w http.ResponseWriter, r *http.Request) {
 
 		for _, item := range parsedYaml {
-			if r.URL.Path == item.Path {
-				log.Printf("Redirected request to %q", item.Url)
+			if path := r.URL.Path; path == item.Path {
+				log.Printf("Redirected requested path %q to %q", path, item.Url)
 				http.Redirect(w, r, item.Url, http.StatusSeeOther)
 				return
 			}
 		}
 		fallback.ServeHTTP(w, r)
 	}
-
-	for _, item := range parsedYaml {
-		log.Printf("Registered path %q, redirect to URL %q", item.Path, item.Url)
-		http.HandleFunc(item.Path, f)
-	}
-
 	return f, err
 }

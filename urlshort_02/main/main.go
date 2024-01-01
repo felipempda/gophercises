@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	urlshort "gophercises/urlshort_02" //"github.com/gophercises/urlshort"  (created a symbolik link "gophercises" in GOROOT/src to test locally)
@@ -15,6 +16,7 @@ func main() {
 		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
 		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
 		"/google":         "https://www.google.com",
+		"/magic":          "https://magic.wizards.com/",
 	}
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
@@ -30,9 +32,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	log.Printf("Starting the server on :8080")
 	http.ListenAndServe(":8080", yamlHandler)
 	// http.ListenAndServe(":8080", mapHandler)
-	fmt.Println("Starting the server on :8080")
 }
 
 func defaultMux() *http.ServeMux {
