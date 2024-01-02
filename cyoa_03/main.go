@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -52,11 +53,21 @@ func parseJson(bytes []byte) Cyoa {
 func (cyoa Cyoa) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[1:] //remove initial /
 	if arch, ok := cyoa[path]; ok {
-		fmt.Fprintf(w, "<p>You are at Arch %q (%q)</p><br>", path, arch.Title)
-		for _, title := range arch.Story {
-			fmt.Fprintln(w, title)
-		}
-	} else {
-		fmt.Fprintf(w, "Arch %q not found", path)
+		runArchTemplate(arch, w)
+		return
+	}
+	if path == "" {
+		http.Redirect(w, r, "/intro", http.StatusSeeOther)
+		return
+	}
+	fmt.Fprintf(w, "Arch %q not found", path)
+}
+
+func runArchTemplate(arch Arch, w http.ResponseWriter) {
+	t, err := template.New("webpage").ParseFiles("./arch.html")
+	err = t.ExecuteTemplate(w, "T", arch)
+	if err != nil {
+		fmt.Fprintf(w, "Oops, error rendering template. Please be a better programmer!")
+		log.Println(err)
 	}
 }
