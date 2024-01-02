@@ -11,7 +11,7 @@ import (
 func main() {
 	log.Println("Starting webserver...")
 	cyoa := readJson()
-	http.ListenAndServe(":8080", cyoaHandler(cyoa))
+	http.ListenAndServe(":8080", cyoa)
 }
 
 func readJson() Cyoa {
@@ -49,16 +49,14 @@ func parseJson(bytes []byte) Cyoa {
 	return cyoa
 }
 
-func cyoaHandler(cyoa Cyoa) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path[1:] //remove initial /
-		if arch, ok := cyoa[path]; ok {
-			fmt.Fprintf(w, "<p>You are at Arch %q (%q)</p><br>", path, arch.Title)
-			for _, title := range arch.Story {
-				fmt.Fprintln(w, title)
-			}
-		} else {
-			fmt.Fprintf(w, "Arch %q not found", path)
+func (cyoa Cyoa) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path[1:] //remove initial /
+	if arch, ok := cyoa[path]; ok {
+		fmt.Fprintf(w, "<p>You are at Arch %q (%q)</p><br>", path, arch.Title)
+		for _, title := range arch.Story {
+			fmt.Fprintln(w, title)
 		}
-	})
+	} else {
+		fmt.Fprintf(w, "Arch %q not found", path)
+	}
 }
