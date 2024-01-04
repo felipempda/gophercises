@@ -1,4 +1,4 @@
-package urlshort_02
+package urlshort
 
 import (
 	"gopkg.in/yaml.v2"

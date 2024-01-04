@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	urlshort "gophercises/urlshort_02" //"github.com/gophercises/urlshort"  (created a symbolik link "gophercises" in GOROOT/src to test locally)
+	"gophercises/02_urlshort/urlshort" // LOCALLY (created a symbolik link "gophercises" in GOROOT/src to test locally)
+	// "https://github.com/felipempda/gophercises/02_urlshort/urlshort" // REMOTELY
 )
 
 func main() {

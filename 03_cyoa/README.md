@@ -1,5 +1,13 @@
 # Exercise #3: Choose your own adventure
 
+## Lessons Learned
+
+- Packages json, html/templates
+- Create your own http.Handler using a method on a struct
+- Nested loop inside a template
+
+## Overview from [gophercises](https://github.com/gophercises/cyoa):
+
 [![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/cyoa) [![demo: ->](https://img.shields.io/badge/demo-%E2%86%92-blue.svg?style=for-the-badge)](https://gophercises.com/demos/cyoa/)
 
 
