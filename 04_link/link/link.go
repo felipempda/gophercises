@@ -21,12 +21,12 @@ func Parse(filename string) (HtmlParsed, error) {
 	f, err := os.Open(filename)
 	defer f.Close()
 	if err != nil {
-		panic(err)
+		return h, err
 	}
 
 	node, err := html.Parse(f)
 	if err != nil {
-		panic(err)
+		return h, err
 	}
 	h.fillNode(node)
 
@@ -40,18 +40,31 @@ func (h *HtmlParsed) fillNode(node *html.Node) {
 
 			for _, a := range n.Attr {
 				if a.Key == "href" {
-					newLink := HrefLink{a.Val, strings.TrimSpace(n.FirstChild.Data)} // how to find this bloody text ?
+					text := text(n)
+					newLink := HrefLink{a.Val, text}
 					h.HrefLinks = append(h.HrefLinks, newLink)
 					break
 				}
 			}
 		}
-		// } else if n.Type == html.TextNode {
-		//    log.Printf("Text = %v", n.Data)
-		// }
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			f(c)
 		}
 	}
 	f(node)
+}
+
+// ok so you need to run the siblings of N to find a suitable TextNode
+func text(n *html.Node) string {
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+	if n.Type != html.ElementNode {
+		return ""
+	}
+	var ret string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		ret += text(c)
+	}
+	return strings.Join(strings.Fields(ret), " ")
 }
