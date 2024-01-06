@@ -1,5 +1,196 @@
 # Exercise #5: Sitemap Builder
 
+## Lessons Learned
+
+- Packages encoding/xml
+
+## Logs
+
+```bash
+$ go run examples/ex1/main.go -website https://calhoun.io -maxLevel 0
+At level 0
+Visiting https://calhoun.io ...Found 18 links
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+ <url>
+  <loc>https://calhoun.io/courses</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/progress/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/post/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/2/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/using-postgresql-with-go</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/lets-learn-algorithms</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/series</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/tags/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/about</loc>
+ </url>
+</urlset>
+
+
+$ go run examples/ex1/main.go -website https://calhoun.io -maxLevel -1
+At level 0
+Visiting https://calhoun.io ...Found 18 links
+At level 1
+Visiting https://calhoun.io/ ...Found 18 links
+At level 2
+Visiting https://calhoun.io/courses ...Found 10 links
+At level 3
+Visiting https://calhoun.io/post/ ...Found 10 links
+At level 4
+Visiting https://calhoun.io/series ...Found 11 links
+At level 5
+Visiting https://calhoun.io/series/page/2/ ...Found 11 links
+At level 6
+Visiting https://calhoun.io/series/ ...Found 11 links
+At level 7
+Visiting https://calhoun.io/progress/ ...Found 10 links
+At level 8
+Visiting https://calhoun.io/tags/ ...Found 10 links
+At level 9
+Visiting https://calhoun.io/about ...Found 10 links
+At level 2
+Visiting https://calhoun.io/page/2/ ...Found 19 links
+At level 3
+Visiting https://calhoun.io/page/3/ ...Found 19 links
+At level 4
+Visiting https://calhoun.io/page/4/ ...Found 19 links
+At level 5
+Visiting https://calhoun.io/page/5/ ...Found 19 links
+At level 6
+Visiting https://calhoun.io/page/6/ ...Found 19 links
+At level 7
+Visiting https://calhoun.io/page/7/ ...Found 19 links
+At level 8
+Visiting https://calhoun.io/page/8/ ...Found 19 links
+At level 9
+Visiting https://calhoun.io/page/9/ ...Found 19 links
+At level 10
+Visiting https://calhoun.io/page/10/ ...Found 19 links
+At level 11
+Visiting https://calhoun.io/page/11/ ...Found 19 links
+At level 12
+Visiting https://calhoun.io/page/12/ ...Found 19 links
+At level 13
+Visiting https://calhoun.io/page/13/ ...Found 19 links
+At level 14
+Visiting https://calhoun.io/page/14/ ...Found 19 links
+At level 15
+Visiting https://calhoun.io/page/15/ ...Found 19 links
+At level 16
+Visiting https://calhoun.io/page/16/ ...Found 18 links
+At level 17
+Visiting https://calhoun.io/using-postgresql-with-go ...Found 10 links
+At level 17
+Visiting https://calhoun.io/lets-learn-algorithms ...Found 10 links
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+ <url>
+  <loc>https://calhoun.io/using-postgresql-with-go</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/series/page/2/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/about</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/courses</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/series</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/5/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/lets-learn-algorithms</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/16/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/tags/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/9/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/6/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/8/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/10/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/13/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/14/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/post/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/4/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/15/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/2/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/3/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/7/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/12/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/series/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/progress/</loc>
+ </url>
+ <url>
+  <loc>https://calhoun.io/page/11/</loc>
+ </url>
+</urlset>
+```
+
+## Overview from [gophercises](https://github.com/gophercises/sitemap/):
+
 [![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/sitemap)
 
 ## Exercise details
