@@ -2,47 +2,46 @@ package link
 
 import (
 	"golang.org/x/net/html"
+	"io"
 	"os"
 	"strings"
 )
-
-type HtmlParsed struct {
-	HrefLinks []HrefLink
-}
 
 type HrefLink struct {
 	Href string
 	Text string
 }
 
-func Parse(filename string) (HtmlParsed, error) {
-	h := HtmlParsed{}
+func ParseReader(reader io.Reader) ([]HrefLink, error) {
+	node, err := html.Parse(reader)
+	if err != nil {
+		return nil, err
+	}
+	return extractLinks(node), nil
+}
 
+// you can't overload functions with the same name and different argument types
+// maybe it's for the best?
+func ParseFile(filename string) ([]HrefLink, error) {
 	f, err := os.Open(filename)
 	defer f.Close()
 	if err != nil {
-		return h, err
+		return nil, err
 	}
-
-	node, err := html.Parse(f)
-	if err != nil {
-		return h, err
-	}
-	h.fillNode(node)
-
-	return h, err
+	return ParseReader(f)
 }
 
-func (h *HtmlParsed) fillNode(node *html.Node) {
+func extractLinks(node *html.Node) []HrefLink {
+	var h []HrefLink
 	var f func(*html.Node)
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
 
 			for _, a := range n.Attr {
 				if a.Key == "href" {
-					text := text(n)
+					text := findText(n)
 					newLink := HrefLink{a.Val, text}
-					h.HrefLinks = append(h.HrefLinks, newLink)
+					h = append(h, newLink)
 					break
 				}
 			}
@@ -52,10 +51,11 @@ func (h *HtmlParsed) fillNode(node *html.Node) {
 		}
 	}
 	f(node)
+	return h
 }
 
 // ok so you need to run the siblings of N to find a suitable TextNode
-func text(n *html.Node) string {
+func findText(n *html.Node) string {
 	if n.Type == html.TextNode {
 		return n.Data
 	}
@@ -64,7 +64,8 @@ func text(n *html.Node) string {
 	}
 	var ret string
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		ret += text(c)
+		ret += findText(c)
 	}
+	// remove space between words, better than trim (but more expensive)
 	return strings.Join(strings.Fields(ret), " ")
 }

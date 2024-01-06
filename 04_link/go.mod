@@ -1,4 +1,4 @@
-module link
+module github.com/felipempda/gophercises/04_link
 
 go 1.21.5
 
