@@ -10,7 +10,8 @@ import (
 
 // negative maxLevel means you don't care about them
 func SitemapBuilder(website string, maxLevel int) []byte {
-	links := getLinks(website, maxLevel)
+	links := bfs(website, maxLevel)
+	// links :=  getLinks(website, maxLevel) // initial implementation with recursive functions
 	xml := buildXML(links)
 	return xml
 }
@@ -47,6 +48,50 @@ func getLinks(website string, maxLevel int) []string {
 	return links
 }
 
+func bfs(website string, maxLevel int) []string {
+	visited := make(map[string]struct{})
+	var q map[string]struct{}
+	n := map[string]struct{}{
+		website: struct{}{}, // {}{} here is because type=struct{} and initialization={}
+		// otherwise you would have error => struct{} (type) is not an expression
+	}
+	for level := 0; level <= maxLevel || maxLevel < 0; level++ {
+		fmt.Printf("At level %d\n", level)
+		q, n = n, make(map[string]struct{})
+		if len(q) == 0 {
+			break
+		}
+		for page, _ := range q {
+			if _, ok := visited[page]; ok {
+				continue
+			}
+			for _, link := range GetLinksFromSameWebsite(page, website) {
+				if _, ok := visited[page]; !ok {
+					n[link] = struct{}{}
+				}
+			}
+			visited[page] = struct{}{}
+		}
+	}
+	//   which one is better ?
+	//
+	links := make([]string, len(visited)) // len=size, cap=size
+	var i = 0
+	for link, _ := range visited {
+		links[i] = link
+		i++
+	}
+
+	// or
+	//   links = make([]string, 0, len(visited)) // len=0, cap=size, so further appends only increment size while cap remains the same
+	//   for link, _ := range visited {
+	//   	links = append(links, link)
+	//   }
+	return links
+}
+
+const xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9"
+
 type siteMap struct {
 	XMLName xml.Name `xml:"urlset"`
 	Xmlns   string   `xml:"xmlns,attr"`
@@ -59,18 +104,16 @@ type url struct {
 
 func buildXML(links []string) []byte {
 
-	u := siteMap{}
-	u.Xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9" // this feels illegal
+	u := siteMap{
+		Xmlns: xmlns,
+	}
 	for _, link := range links {
 		u.Urls = append(u.Urls, url{link})
 	}
 	var result []byte
 	result, err := xml.MarshalIndent(u, "", " ")
-	if err != nil {
-		panic(err)
-	}
-	var xmlHeader = []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n") // this as well lol
-	return append(xmlHeader, result...)
+	panicThis(err)
+	return append([]byte(xml.Header), result...)
 
 }
 

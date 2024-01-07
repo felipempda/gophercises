@@ -3,6 +3,9 @@
 ## Lessons Learned
 
 - Packages encoding/xml
+- You can do a Map to an empty struct{} to save memory
+- BFS algorithm
+- You can initiate a slice with a length to optimize memory allocation
 
 ## Logs
 
