@@ -7,6 +7,13 @@ Creating a local postgresql database:
 docker run -d --name postgresCont -p 5432:5432 -e POSTGRES_PASSWORD=pass123 postgres
 ```
 
+Testing normalize functions:
+```bash
+felipe.moreno@HOST phone % go test  # -v
+PASS
+ok      github.com/felipempda/gophercises/08_phone/phone        0.132s
+```
+
 ## Overview from [gophercises](https://github.com/gophercises/phone):
 
 [![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/phone)
