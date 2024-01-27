@@ -54,7 +54,10 @@ func populateDatabase(db *sql.DB) {
 }
 
 func recreateDB(db *sql.DB, dbName string) error {
-	_, err := db.Exec("DROP DATABASE " + dbName)
+	_, err := db.Exec("DROP DATABASE IF EXISTS " + dbName)
+	if err != nil {
+		return err
+	}
 	_, err = db.Exec("CREATE DATABASE " + dbName)
 	return err
 }
