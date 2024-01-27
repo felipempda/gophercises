@@ -12,28 +12,55 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "pass123"
-	//dbName   = "postgres"
+	dbName   = "phone_database"
 )
 
 func main() {
 
-	populateDatabase()
+	db, err := createDB()
+	must(err)
+	defer db.Close()
+	populateDatabase(db)
 
 }
 
-func populateDatabase() {
+func createDB() (*sql.DB, error) {
+	// connect first time
 	dbInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable", host, port, user, password)
 	db, err := sql.Open("postgres", dbInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-	_, err = db.Exec("drop table phone_numbers") // as a former DBA this feels so right 😈
+	must(err)
+
+	// recreateDB
+	err = recreateDB(db, dbName)
+	must(err)
+	db.Close()
+
+	// connect to database
+	dbInfo = fmt.Sprintf("%s dbname=%s", dbInfo, dbName)
+	db, err = sql.Open("postgres", dbInfo)
+	db.Ping()
+
+	// return connection
+	return db, err
+}
+
+func populateDatabase(db *sql.DB) {
+	_, err := db.Exec("drop table phone_numbers") // as a former DBA this feels so right 😈
 	_, err = db.Exec("CREATE TABLE phone_numbers(ID SERIAL PRIMARY KEY, NUMBER TEXT NOT NULL)")
 	for _, number := range phone.SampleData() {
 		_, err = db.Exec("INSERT INTO phone_numbers (NUMBER) values ($1)", number)
-		if err != nil {
-			panic(err)
-		}
+		must(err)
+	}
+}
+
+func recreateDB(db *sql.DB, dbName string) error {
+	_, err := db.Exec("DROP DATABASE " + dbName)
+	_, err = db.Exec("CREATE DATABASE " + dbName)
+	return err
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
