@@ -9,9 +9,46 @@ docker run -d --name postgresCont -p 5432:5432 -e POSTGRES_PASSWORD=pass123 post
 
 Testing normalize functions:
 ```bash
-felipe.moreno@HOST phone % go test  # -v
+$ go test  # -v
 PASS
 ok      github.com/felipempda/gophercises/08_phone/phone        0.132s
+```
+
+Testing database operations:
+```bash
+$ go run main.go
+Inserting...
+id=1
+id=2
+id=3
+id=4
+id=5
+id=6
+id=7
+Selecting...
+1 - 1234567890
+2 - 123 456 7891
+3 - (123) 456 7892
+4 - (123) 456-7893
+5 - 123-456-7894
+6 - 123-456-7890
+7 - 1234567892
+Updating...
+Selecting...
+1 - 1234567890
+2 - 1234567891
+3 - 1234567892
+4 - 1234567893
+5 - 1234567894
+6 - 1234567890
+7 - 1234567892
+Deleting duplicates...
+Selecting...
+1 - 1234567890
+2 - 1234567891
+3 - 1234567892
+4 - 1234567893
+5 - 1234567894
 ```
 
 ## Overview from [gophercises](https://github.com/gophercises/phone):
