@@ -1,39 +1,43 @@
 package deck
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type=Suit,Rank
+
 import (
 	"fmt"
 )
 
-type Suit int
-type Face int
+type Suit uint8
+type Rank uint8 // smaller than int
 
 const (
 	Spade   Suit = iota // "♠"
 	Diamond             //"♦"
 	Club                //"♣"
 	Heart               //"♥"
+	Joker
 )
 
 const (
-	CardA Face = iota
-	Card1
-	Card2
-	Card3
-	Card4
-	Card5
-	Card6
-	Card7
-	Card8
-	Card9
-	Card10
-	CardJ
-	CardQ
-	CardK
+	_ Rank = iota // the first is not used, so actually we start from 1
+	Ace
+	One
+	Two
+	Three
+	Four
+	Five
+	Six
+	Seven
+	Eight
+	Nine
+	Ten
+	Jack
+	Queen
+	King
 )
 
 type Card struct {
-	Suit Suit
-	Face Face
+	Suit
+	Rank
 }
 
 func translateSuit(s Suit) string {
@@ -51,29 +55,18 @@ func translateSuit(s Suit) string {
 	}
 }
 
-func translateFace(c Face) string {
-	switch c {
-	case CardA:
-		return "A"
-	case CardJ:
-		return "J"
-	case CardQ:
-		return "Q"
-	case CardK:
-		return "K"
-	default:
-		return fmt.Sprintf("%d", c)
+// It can't be a * argument for the String()!
+func (c Card) String() string {
+	if c.Suit == Joker {
+		return c.Suit.String()
 	}
-}
-
-func (c *Card) Describe() string {
-	return fmt.Sprintf("%s%s", translateFace(c.Face), translateSuit(c.Suit))
+	return fmt.Sprintf("%s of %ss", c.Rank, c.Suit)
 }
 
 func New() []Card {
 	result := make([]Card, 0)
 	for suit := Spade; suit <= Heart; suit = suit + 1 {
-		for face := CardA; face <= CardK; face = face + 1 {
+		for face := Ace; face <= King; face = face + 1 {
 			c := Card{suit, face}
 			result = append(result, c)
 		}
