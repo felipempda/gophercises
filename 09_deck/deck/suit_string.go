@@ -30,24 +30,23 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[Ace-1]
-	_ = x[One-2]
-	_ = x[Two-3]
-	_ = x[Three-4]
-	_ = x[Four-5]
-	_ = x[Five-6]
-	_ = x[Six-7]
-	_ = x[Seven-8]
-	_ = x[Eight-9]
-	_ = x[Nine-10]
-	_ = x[Ten-11]
-	_ = x[Jack-12]
-	_ = x[Queen-13]
-	_ = x[King-14]
+	_ = x[Two-2]
+	_ = x[Three-3]
+	_ = x[Four-4]
+	_ = x[Five-5]
+	_ = x[Six-6]
+	_ = x[Seven-7]
+	_ = x[Eight-8]
+	_ = x[Nine-9]
+	_ = x[Ten-10]
+	_ = x[Jack-11]
+	_ = x[Queen-12]
+	_ = x[King-13]
 }
 
-const _Rank_name = "AceOneTwoThreeFourFiveSixSevenEightNineTenJackQueenKing"
+const _Rank_name = "AceTwoThreeFourFiveSixSevenEightNineTenJackQueenKing"
 
-var _Rank_index = [...]uint8{0, 3, 6, 9, 14, 18, 22, 25, 30, 35, 39, 42, 46, 51, 55}
+var _Rank_index = [...]uint8{0, 3, 6, 11, 15, 19, 22, 27, 32, 36, 39, 43, 48, 52}
 
 func (i Rank) String() string {
 	i -= 1

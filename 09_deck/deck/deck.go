@@ -20,7 +20,6 @@ const (
 const (
 	_ Rank = iota // the first is not used, so actually we start from 1
 	Ace
-	One
 	Two
 	Three
 	Four
@@ -64,11 +63,10 @@ func (c Card) String() string {
 }
 
 func New() []Card {
-	result := make([]Card, 0)
+	var result []Card
 	for suit := Spade; suit <= Heart; suit = suit + 1 {
 		for face := Ace; face <= King; face = face + 1 {
-			c := Card{suit, face}
-			result = append(result, c)
+			result = append(result, Card{suit, face})
 		}
 	}
 	return result

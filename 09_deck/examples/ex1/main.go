@@ -32,4 +32,6 @@ func main() {
 	for _, card := range myDeck {
 		fmt.Println(card)
 	}
+
+	fmt.Printf("Size of deck: %d\n", len(myDeck))
 }
