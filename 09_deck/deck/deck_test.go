@@ -2,6 +2,7 @@ package deck
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 )
 
@@ -28,4 +29,48 @@ func TestNew(t *testing.T) {
 	if l != 52 {
 		t.Errorf("Wrong number of cards in the deck: %d", l)
 	}
+}
+
+func ExampleSort() {
+	cards := Deck{
+		Card{Heart, Ten},
+		Card{Heart, Nine},
+		Card{Spade, Ace},
+		Card{Spade, Two},
+	}
+
+	sort.Sort(cards)
+	for _, card := range cards {
+		fmt.Println(card)
+	}
+
+	// Output:
+	// Ace of Spades
+	// Two of Spades
+	// Nine of Hearts
+	// Ten of Hearts
+}
+
+func ExampleCustomSort() {
+	cards := Deck{
+		Card{Heart, Ten},
+		Card{Heart, Nine},
+		Card{Spade, Ace},
+		Card{Spade, Two},
+	}
+
+	rankDescended := func(c1, c2 *Card) bool {
+		return c1.Rank > c2.Rank
+	}
+
+	By(rankDescended).Sort(cards)
+	for _, card := range cards {
+		fmt.Println(card)
+	}
+
+	// Output:
+	// Ten of Hearts
+	// Nine of Hearts
+	// Two of Spades
+	// Ace of Spades
 }

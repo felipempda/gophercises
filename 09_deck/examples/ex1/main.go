@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/felipempda/gophercises/09_deck/deck"
+	"sort"
 )
 
 func main() {
@@ -33,5 +34,10 @@ func main() {
 		fmt.Println(card)
 	}
 
+	// testingSort
 	fmt.Printf("Size of deck: %d\n", len(myDeck))
+
+	sort.Sort(myDeck)
+	fmt.Println("Sorted deck...")
+	fmt.Println(myDeck)
 }
