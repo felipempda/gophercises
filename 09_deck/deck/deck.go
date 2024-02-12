@@ -181,3 +181,12 @@ func Shuffle(deck Deck) Deck {
 	rand.Shuffle(len(deck), swap)
 	return deck
 }
+
+func WithJokers(nJokers int) func(Deck) Deck {
+	return func(deck Deck) Deck {
+		for i := 0; i < nJokers; i++ {
+			deck = append(deck, Card{Suit: Joker})
+		}
+		return deck
+	}
+}

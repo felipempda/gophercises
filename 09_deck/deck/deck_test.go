@@ -96,3 +96,18 @@ func TestSort(t *testing.T) {
 		t.Errorf("Wrong last card, expected %s got %s", e, g)
 	}
 }
+
+func TestWithJokers(t *testing.T) {
+	jokers := 2
+	cards := New(WithJokers(jokers))
+
+	found := 0
+	for _, c := range cards {
+		if c.Suit == Joker {
+			found++
+		}
+	}
+	if found != jokers {
+		t.Errorf("Wrong number of jokers, expected %d, found %d", jokers, found)
+	}
+}

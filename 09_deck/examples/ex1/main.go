@@ -70,4 +70,8 @@ func main() {
 	fmt.Println("Shuffled deck...")
 	shuffledDeck := deck.New(deck.Shuffle)
 	fmt.Println(shuffledDeck)
+
+	fmt.Println("With Jokers deck...")
+	withJokers := deck.New(deck.WithJokers(3))
+	fmt.Println(withJokers)
 }
