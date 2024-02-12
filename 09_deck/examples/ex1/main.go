@@ -81,4 +81,14 @@ func main() {
 	}
 	filteredDeck := deck.New(deck.Filter(removeJQK))
 	fmt.Println(filteredDeck)
+
+	fmt.Println("TwoDecks...")
+	twoDeck := deck.New(deck.WithMultipleDecks(3))
+	fmt.Println(twoDeck)
+	fmt.Println("Size: ", len(twoDeck))
+
+	fmt.Println("TwoDecks + Filtered...")
+	twoDeckFilter := deck.New(deck.WithMultipleDecks(3), deck.Filter(removeJQK))
+	fmt.Println(twoDeckFilter)
+	fmt.Println("Size: ", len(twoDeckFilter))
 }

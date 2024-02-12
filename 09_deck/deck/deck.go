@@ -71,13 +71,19 @@ func (c Card) String() string {
 
 type Deck []Card
 
-func New(opts ...func(Deck) Deck) Deck {
+func standardDeck() Deck {
 	var result Deck
 	for suit := Spade; suit <= Heart; suit = suit + 1 {
 		for face := Ace; face <= King; face = face + 1 {
 			result = append(result, Card{suit, face})
 		}
 	}
+	return result
+}
+
+func New(opts ...func(Deck) Deck) Deck {
+	var result Deck
+	result = standardDeck()
 
 	// run the function for each option
 	for _, opt := range opts {
@@ -200,5 +206,19 @@ func Filter(remove func(card Card) bool) func(Deck) Deck {
 			}
 		}
 		return filteredDeck
+	}
+}
+
+func WithMultipleDecks(nDecks int) func(Deck) Deck {
+	return func(deck Deck) Deck {
+		var newDeck Deck
+		for i := 0; i < nDecks; i++ {
+			// can't use this, because deck might be filtered already!
+			// newDeck := standardDeck()
+
+			// we can use deck variable which is already filled:
+			newDeck = append(newDeck, deck...)
+		}
+		return newDeck
 	}
 }

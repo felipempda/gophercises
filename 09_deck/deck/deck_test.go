@@ -126,3 +126,13 @@ func TestFilter(t *testing.T) {
 	}
 
 }
+
+func TestWithMultipleDecks(t *testing.T) {
+	single := New()
+	x := 3
+	multiple := New(WithMultipleDecks(x))
+
+	if e, f := len(single)*x, len(multiple); e != f {
+		t.Errorf("Wrong number of cards with multipleDecks option. Expected %d, Found %d cards", e, f)
+	}
+}
