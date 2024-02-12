@@ -66,4 +66,8 @@ func main() {
 	fmt.Println("Custom Sorted deck...")
 	newDeck := deck.New(deck.Sort(ByCustomRank))
 	fmt.Println(newDeck)
+
+	fmt.Println("Shuffled deck...")
+	shuffledDeck := deck.New(deck.Shuffle)
+	fmt.Println(shuffledDeck)
 }

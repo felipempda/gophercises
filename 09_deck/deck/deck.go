@@ -4,6 +4,7 @@ package deck
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 )
 
@@ -171,4 +172,12 @@ func Sort(less func(Deck) func(i, j int) bool) func(Deck) Deck {
 		sort.Slice(deck, less(deck))
 		return deck
 	}
+}
+
+func Shuffle(deck Deck) Deck {
+	swap := func(i, j int) {
+		deck[i], deck[j] = deck[j], deck[i]
+	}
+	rand.Shuffle(len(deck), swap)
+	return deck
 }
