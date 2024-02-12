@@ -74,4 +74,11 @@ func main() {
 	fmt.Println("With Jokers deck...")
 	withJokers := deck.New(deck.WithJokers(3))
 	fmt.Println(withJokers)
+
+	fmt.Println("Remove Jacks, Queens and Kings...")
+	removeJQK := func(c deck.Card) bool {
+		return c.Rank == deck.Jack || c.Rank == deck.Queen || c.Rank == deck.King
+	}
+	filteredDeck := deck.New(deck.Filter(removeJQK))
+	fmt.Println(filteredDeck)
 }

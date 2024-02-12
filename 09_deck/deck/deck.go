@@ -190,3 +190,15 @@ func WithJokers(nJokers int) func(Deck) Deck {
 		return deck
 	}
 }
+
+func Filter(remove func(card Card) bool) func(Deck) Deck {
+	return func(deck Deck) Deck {
+		var filteredDeck Deck
+		for _, card := range deck {
+			if !remove(card) {
+				filteredDeck = append(filteredDeck, card)
+			}
+		}
+		return filteredDeck
+	}
+}

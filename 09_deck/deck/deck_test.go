@@ -111,3 +111,18 @@ func TestWithJokers(t *testing.T) {
 		t.Errorf("Wrong number of jokers, expected %d, found %d", jokers, found)
 	}
 }
+
+func TestFilter(t *testing.T) {
+	removeJQK := func(c Card) bool {
+		return c.Rank == Jack || c.Rank == Queen || c.Rank == King
+	}
+
+	filteredDeck := New(Filter(removeJQK))
+
+	for i, c := range filteredDeck {
+		if removeJQK(c) == true {
+			t.Errorf("Wrong filter function, filtered card still on the deck[%d]: %s", i, c)
+		}
+	}
+
+}
