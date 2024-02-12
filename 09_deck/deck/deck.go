@@ -35,6 +35,11 @@ const (
 	King
 )
 
+const (
+	minRank = Ace
+	maxRank = King
+)
+
 type Card struct {
 	Suit
 	Rank
@@ -65,12 +70,17 @@ func (c Card) String() string {
 
 type Deck []Card
 
-func New() Deck {
+func New(opts ...func(Deck) Deck) Deck {
 	var result Deck
 	for suit := Spade; suit <= Heart; suit = suit + 1 {
 		for face := Ace; face <= King; face = face + 1 {
 			result = append(result, Card{suit, face})
 		}
+	}
+
+	// run the function for each option
+	for _, opt := range opts {
+		result = opt(result)
 	}
 	return result
 }
@@ -129,4 +139,36 @@ func (s *cardSorter) Swap(i, j int) {
 // Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
 func (s *cardSorter) Less(i, j int) bool {
 	return s.by(&s.cards[i], &s.cards[j])
+}
+
+// another way of doing it, with functional options pattern
+// (it looks like Java BuilderPattern, but less organized - what are actually the options?)
+
+// absolute Value of Value of Card , convert to single int the ideal order
+func AbsRank(c Card) int {
+	return int(c.Suit)*int(maxRank) + int(c.Rank)
+}
+
+// this is one of the "options", it implements the opts signature
+func DefaultSort(deck Deck) Deck {
+	sort.Slice(deck, Less(deck))
+	return deck
+}
+
+// this implements Less interface, required by sort.Slice
+func Less(deck Deck) func(i, j int) bool {
+	return func(i, j int) bool {
+		return AbsRank(deck[i]) < AbsRank(deck[j])
+	}
+}
+
+// now for a generic order solution with functional arguments
+
+// Sort receives a function that returns a function
+// and returns a function
+func Sort(less func(Deck) func(i, j int) bool) func(Deck) Deck {
+	return func(deck Deck) Deck {
+		sort.Slice(deck, less(deck))
+		return deck
+	}
 }

@@ -74,3 +74,25 @@ func ExampleCustomSort() {
 	// Two of Spades
 	// Ace of Spades
 }
+
+func TestDefaultSort(t *testing.T) {
+	cards := New(DefaultSort)
+
+	if e, g := (Card{Rank: Ace, Suit: Spade}), (cards[0]); e != g {
+		t.Errorf("Wrong first card, expected %s got %s", e, g)
+	}
+	if e, g := (Card{Rank: King, Suit: Heart}), (cards[len(cards)-1]); e != g {
+		t.Errorf("Wrong last card, expected %s got %s", e, g)
+	}
+}
+
+func TestSort(t *testing.T) {
+	cards := New(Sort(Less))
+
+	if e, g := (Card{Rank: Ace, Suit: Spade}), (cards[0]); e != g {
+		t.Errorf("Wrong first card, expected %s got %s", e, g)
+	}
+	if e, g := (Card{Rank: King, Suit: Heart}), (cards[len(cards)-1]); e != g {
+		t.Errorf("Wrong last card, expected %s got %s", e, g)
+	}
+}
