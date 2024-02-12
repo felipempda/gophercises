@@ -2,6 +2,7 @@ package deck
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 	"testing"
 )
@@ -134,5 +135,26 @@ func TestWithMultipleDecks(t *testing.T) {
 
 	if e, f := len(single)*x, len(multiple); e != f {
 		t.Errorf("Wrong number of cards with multipleDecks option. Expected %d, Found %d cards", e, f)
+	}
+}
+
+func TestShuffle2(t *testing.T) {
+	// make shuffleRand deterministic
+	// First call to shuffleRand.Perm(52) should be:
+	// r := rand.New(rand.NewSource(0))
+	// fmt.Println(r.Perm(52))
+	// [40 35 ... ]
+	// if the standard deck size changes, this is not going to work
+	shuffleRand = rand.New(rand.NewSource(0))
+
+	orig := New()
+	first := orig[40]
+	second := orig[35]
+	cards := New(Shuffle2)
+	if cards[0] != first {
+		t.Errorf("Expected the first card to be %s, received %s.", first, cards[0])
+	}
+	if cards[1] != second {
+		t.Errorf("Expected the first card to be %s, received %s.", second, cards[1])
 	}
 }

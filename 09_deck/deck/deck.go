@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"time"
 )
 
 type Suit uint8
@@ -186,6 +187,18 @@ func Shuffle(deck Deck) Deck {
 	}
 	rand.Shuffle(len(deck), swap)
 	return deck
+}
+
+// Shuffle with this source:
+var shuffleRand = rand.New(rand.NewSource(time.Now().Unix()))
+
+func Shuffle2(cards Deck) Deck {
+	ret := make(Deck, len(cards))
+	perm := shuffleRand.Perm(len(cards))
+	for i, j := range perm {
+		ret[i] = cards[j]
+	}
+	return ret
 }
 
 func WithJokers(nJokers int) func(Deck) Deck {
