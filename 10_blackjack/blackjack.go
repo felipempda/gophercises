@@ -16,19 +16,28 @@ const (
 	hit
 )
 
+type Hand []deck.Card
+
 type participant struct {
-	cards  []deck.Card
+	cards  Hand
 	points int
 	stand  bool
 }
 
 var (
-	gameRound        int
-	gameDeck         deck.Deck
-	gameDeckPosition int
-	player1          participant
-	dealer           participant
+	gameRound int
+	gameDeck  deck.Deck
+	player1   participant
+	dealer    participant
 )
+
+func (h Hand) String() string {
+	strs := make([]string, len(h))
+	for i := range strs {
+		strs[i] = h[i].String()
+	}
+	return strings.Join(strs, ", ")
+}
 
 func main() {
 
@@ -36,8 +45,8 @@ func main() {
 }
 
 func drawCard() deck.Card {
-	card := gameDeck[gameDeckPosition]
-	gameDeckPosition = gameDeckPosition + 1
+	var card deck.Card
+	card, gameDeck = gameDeck[0], gameDeck[1:]
 	return card
 }
 
@@ -52,12 +61,15 @@ func play() {
 
 func initialDraw() {
 	// start Deck
-	gameDeck = deck.New(deck.Shuffle)
+	gameDeck = deck.New(deck.WithMultipleDecks(2), deck.Shuffle)
 
 	// draw 2 cards
 	for i := 0; i < 2; i++ {
-		player1.cards = append(player1.cards, drawCard())
-		dealer.cards = append(dealer.cards, drawCard())
+
+		// array of Hand, so we don't repeat code
+		for _, hand := range []*Hand{&player1.cards, &dealer.cards} {
+			*hand = append(*hand, drawCard())
+		}
 	}
 }
 
@@ -159,20 +171,20 @@ func printScreen(endGame bool) {
 	cmd.Run()
 
 	// show dealer cards only at the end, at the beginning only first card is shown
-	var dealer_cards []deck.Card
+	var dealer_cards string
 	var dealer_points int
 	if endGame {
-		dealer_cards = dealer.cards
+		dealer_cards = Hand(dealer.cards).String()
 		dealer_points = calculatePoints(dealer, -1)
 	} else {
-		dealer_cards = dealer.cards[0:1]
+		dealer_cards = Hand(dealer.cards[0:1]).String() + ", ** HIDDEN **"
 		dealer_points = calculatePoints(dealer, 0)
 	}
 
 	fmt.Printf("[ BLACK JACK   -  ROUND %d ]\n\n", gameRound)
 	fmt.Printf("------------------------------------------------------------------------------\n")
 	fmt.Printf(" Dealer (%d cards): %s = %d \n", len(dealer.cards), dealer_cards, dealer_points)
-	fmt.Printf(" Player (%d cards): %s = %d \n ", len(player1.cards), player1.cards, player1.points)
+	fmt.Printf(" Player (%d cards): %s = %d \n ", len(player1.cards), Hand(player1.cards), player1.points)
 	fmt.Printf("------------------------------------------------------------------------------\n")
 
 	if endGame {

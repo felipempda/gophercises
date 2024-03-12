@@ -28,6 +28,15 @@ Press (1) for Hit or (2) for Stand: 2
  ------------------------------------------------------------------------------
 PLAYER1 WINS!
 
+Another example: (special rule for Ace)
+
+[ BLACK JACK   -  ROUND 2 ]
+
+------------------------------------------------------------------------------
+ Dealer (2 cards): Four of Diamonds, Ace of Diamonds = 5
+ Player (3 cards): Nine of Diamonds, Ace of Hearts, Ace of Hearts = 21
+ ------------------------------------------------------------------------------
+PLAYER1 WINS!
 ```
 
 
