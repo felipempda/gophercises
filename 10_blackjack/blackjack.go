@@ -125,10 +125,7 @@ func calculatePoints(p participant, upToPosition int) int {
 			break
 		}
 		var value int
-		value = int(card.Rank)
-		if value > 10 {
-			value = 10
-		}
+		value = min(int(card.Rank), 10)
 		if card.Rank == deck.Ace {
 			numberAces++
 		}
@@ -136,13 +133,18 @@ func calculatePoints(p participant, upToPosition int) int {
 	}
 
 	// special rule for 21
-	for n := 1; n <= numberAces; n++ {
-		if total+(n*10) == 21 {
-			total = 21
-			break
-		}
+	if numberAces > 0 && total+10 == 21 {
+		total = 21
 	}
 	return total
+}
+
+func min(a, b int) int {
+	if a > b {
+		return b
+	} else {
+		return a
+	}
 }
 
 func playersTurn() {
