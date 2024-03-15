@@ -24,12 +24,33 @@ type participant struct {
 	stand  bool
 }
 
-var (
+type gameState struct {
 	gameRound int
 	gameDeck  deck.Deck
 	player1   participant
 	dealer    participant
-)
+}
+
+func (p participant) Clone() participant {
+	ret := participant{
+		cards:  make([]deck.Card, len(p.cards)),
+		points: p.points,
+		stand:  p.stand,
+	}
+	copy(ret.cards, p.cards)
+	return ret
+}
+
+func (gs gameState) Clone() gameState {
+	ret := gameState{
+		gameRound: gs.gameRound,
+		gameDeck:  make([]deck.Card, len(gs.gameDeck)),
+		player1:   gs.player1.Clone(),
+		dealer:    gs.dealer.Clone(),
+	}
+	copy(ret.gameDeck, gs.gameDeck)
+	return ret
+}
 
 func (h Hand) String() string {
 	strs := make([]string, len(h))
@@ -44,53 +65,50 @@ func main() {
 	play()
 }
 
-func drawCard() deck.Card {
+func (gs *gameState) drawCard() deck.Card {
 	var card deck.Card
-	card, gameDeck = gameDeck[0], gameDeck[1:]
+	card, gs.gameDeck = gs.gameDeck[0], gs.gameDeck[1:]
 	return card
 }
 
 func play() {
-	//for i := 1; i<=4; i++ {
-	initialDraw()
-	for gameRound = 1; shouldContinue(); gameRound++ {
-		printScreen(false)
-		if !player1.stand {
-			playersTurn()
-		} else {
-			dealersTurn()
+	for i := 1; i <= 4; i++ {
+		gs := initialDraw()
+		for gs.gameRound = 1; gs.shouldContinue(); gs.gameRound++ {
+			gs.printScreen(false)
+			if !gs.player1.stand {
+				gs = gs.playersTurn()
+			} else {
+				gs = gs.dealersTurn()
+			}
 		}
+		gs.printScreen(true)
 	}
-	printScreen(true)
-	// }
 }
 
-func initialDraw() {
+func initialDraw() gameState {
 	// start Deck
-	gameDeck = deck.New(deck.WithMultipleDecks(2), deck.Shuffle)
-	player1.cards = nil
-	player1.stand = false
-	dealer.cards = nil
-	dealer.stand = false
-
+	gs := gameState{}
+	gs.gameDeck = deck.New(deck.WithMultipleDecks(2), deck.Shuffle)
 	// draw 2 cards
 	for i := 0; i < 2; i++ {
 
 		// array of Hand, so we don't repeat code
-		for _, hand := range []*Hand{&player1.cards, &dealer.cards} {
-			*hand = append(*hand, drawCard())
+		for _, hand := range []*Hand{&gs.player1.cards, &gs.dealer.cards} {
+			*hand = append(*hand, gs.drawCard())
 		}
 	}
+	return gs
 }
 
-func calculatePointsAllPlayers() {
-	player1.points = calculatePoints(player1, -1)
-	dealer.points = calculatePoints(dealer, -1)
+func (gs *gameState) calculatePointsAllPlayers() {
+	gs.player1.points = calculatePoints(gs.player1, -1)
+	gs.dealer.points = calculatePoints(gs.dealer, -1)
 }
 
-func shouldContinue() bool {
-	calculatePointsAllPlayers()
-	return !dealer.stand && player1.points < 21
+func (gs *gameState) shouldContinue() bool {
+	gs.calculatePointsAllPlayers()
+	return !gs.dealer.stand && gs.player1.points < 21
 }
 
 func waitPlayersDecision() decision {
@@ -147,30 +165,34 @@ func min(a, b int) int {
 	}
 }
 
-func playersTurn() {
+func (gs gameState) playersTurn() gameState {
+	ret := gs.Clone()
 	d := waitPlayersDecision()
 	if d == hit {
-		player1.cards = append(player1.cards, drawCard())
-		player1.points = calculatePoints(player1, -1)
-		if player1.points >= 21 {
-			player1.stand = true
+		ret.player1.cards = append(ret.player1.cards, ret.drawCard())
+		ret.player1.points = calculatePoints(ret.player1, -1)
+		if ret.player1.points >= 21 {
+			ret.player1.stand = true
 		}
 	} else {
-		player1.stand = true
+		ret.player1.stand = true
 	}
+	return ret
 }
 
-func dealersTurn() {
+func (gs gameState) dealersTurn() gameState {
 	// drawACard
-	if dealer.points <= 16 {
-		dealer.cards = append(dealer.cards, drawCard())
-		dealer.points = calculatePoints(dealer, -1)
+	ret := gs.Clone()
+	if ret.dealer.points <= 16 {
+		ret.dealer.cards = append(ret.dealer.cards, ret.drawCard())
+		ret.dealer.points = calculatePoints(ret.dealer, -1)
 	} else {
-		dealer.stand = true
+		ret.dealer.stand = true
 	}
+	return ret
 }
 
-func printScreen(endGame bool) {
+func (gs *gameState) printScreen(endGame bool) {
 
 	// clear screen
 	cmd := exec.Command("clear")
@@ -182,32 +204,32 @@ func printScreen(endGame bool) {
 	var dealer_points int
 	var roundText string
 	if endGame {
-		dealer_cards = Hand(dealer.cards).String()
-		dealer_points = calculatePoints(dealer, -1)
+		dealer_cards = Hand(gs.dealer.cards).String()
+		dealer_points = calculatePoints(gs.dealer, -1)
 		roundText = "END"
 	} else {
-		dealer_cards = Hand(dealer.cards[0:1]).String() + ", ** HIDDEN **"
-		dealer_points = calculatePoints(dealer, 0)
-		roundText = fmt.Sprintf("ROUND %d", gameRound)
+		dealer_cards = Hand(gs.dealer.cards[0:1]).String() + ", ** HIDDEN **"
+		dealer_points = calculatePoints(gs.dealer, 0)
+		roundText = fmt.Sprintf("ROUND %d", gs.gameRound)
 	}
 
 	fmt.Printf("[ BLACK JACK  - %s ]\n\n", roundText)
 	fmt.Printf("------------------------------------------------------------------------------\n")
-	fmt.Printf(" Dealer (%d cards): %s = %d \n", len(dealer.cards), dealer_cards, dealer_points)
-	fmt.Printf(" Player (%d cards): %s = %d \n ", len(player1.cards), Hand(player1.cards), player1.points)
+	fmt.Printf(" Dealer (%d cards): %s = %d \n", len(gs.dealer.cards), dealer_cards, dealer_points)
+	fmt.Printf(" Player (%d cards): %s = %d \n ", len(gs.player1.cards), Hand(gs.player1.cards), gs.player1.points)
 	fmt.Printf("------------------------------------------------------------------------------\n")
 
 	if endGame {
 		switch {
-		case player1.points > 21:
+		case gs.player1.points > 21:
 			fmt.Println("PLAYER BURST!")
-		case dealer.points > 21:
+		case gs.dealer.points > 21:
 			fmt.Println("DEALER BURST!")
-		case player1.points > dealer.points:
+		case gs.player1.points > gs.dealer.points:
 			fmt.Println("PLAYER WINS!")
-		case dealer.points > player1.points:
+		case gs.dealer.points > gs.player1.points:
 			fmt.Println("DEALER WINS!")
-		case dealer.points == player1.points:
+		case gs.dealer.points == gs.player1.points:
 			fmt.Println("DRAW!")
 		}
 		fmt.Println("Press enter to continue...")

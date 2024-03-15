@@ -4,39 +4,71 @@
 
 ```yaml
 $ go run blackjack.go
-[ BLACK JACK   -  ROUND 1 ]
+
+
+Example 1:
+[ BLACK JACK  - ROUND 1 ]
 
 ------------------------------------------------------------------------------
- Dealer (2 cards): [Seven of Spades] = 7
- Player (2 cards): [Four of Hearts King of Spades] = 14
+ Dealer (2 cards): Two of Spades, ** HIDDEN ** = 2
+ Player (2 cards): Eight of Spades, Three of Clubs = 11
  ------------------------------------------------------------------------------
-Press (1) for Hit or (2) for Stand: 1
+Press (h)it or (s)tand:  h
 
-[ BLACK JACK   -  ROUND 2 ]
+[ BLACK JACK  - END ]
 
 ------------------------------------------------------------------------------
- Dealer (3 cards): [Seven of Spades] = 7
- Player (3 cards): [Four of Hearts King of Spades Five of Hearts] = 19
+ Dealer (2 cards): Two of Spades, Jack of Hearts = 12
+ Player (3 cards): Eight of Spades, Three of Clubs, Ten of Spades = 21
  ------------------------------------------------------------------------------
-Press (1) for Hit or (2) for Stand: 2
+PLAYER WINS!
+Press enter to continue...
 
-[ BLACK JACK   -  ROUND 3 ]
+
+
+Example 2:
+[ BLACK JACK  - ROUND 1 ]
 
 ------------------------------------------------------------------------------
- Dealer (3 cards): [Seven of Spades Two of Clubs Seven of Clubs] = 16
- Player (3 cards): [Four of Hearts King of Spades Five of Hearts] = 19
+ Dealer (2 cards): Queen of Hearts, ** HIDDEN ** = 10
+ Player (2 cards): Queen of Diamonds, Three of Hearts = 13
  ------------------------------------------------------------------------------
-PLAYER1 WINS!
+Press (h)it or (s)tand: h
 
-Another example: (special rule for Ace)
-
-[ BLACK JACK   -  ROUND 2 ]
+[ BLACK JACK  - ROUND 2 ]
 
 ------------------------------------------------------------------------------
- Dealer (2 cards): Four of Diamonds, Ace of Diamonds = 5
- Player (3 cards): Nine of Diamonds, Ace of Hearts, Ace of Hearts = 21
+ Dealer (2 cards): Queen of Hearts, ** HIDDEN ** = 10
+ Player (3 cards): Queen of Diamonds, Three of Hearts, Six of Hearts = 19
  ------------------------------------------------------------------------------
-PLAYER1 WINS!
+Press (h)it or (s)tand:  s
+
+[ BLACK JACK  - END ]
+
+------------------------------------------------------------------------------
+ Dealer (2 cards): Queen of Hearts, Ace of Diamonds = 21
+ Player (3 cards): Queen of Diamonds, Three of Hearts, Six of Hearts = 19
+ ------------------------------------------------------------------------------
+DEALER WINS!
+
+
+Example 3:
+[ BLACK JACK  - ROUND 1 ]
+
+------------------------------------------------------------------------------
+ Dealer (2 cards): Three of Clubs, ** HIDDEN ** = 3
+ Player (2 cards): Nine of Clubs, Nine of Diamonds = 18
+ ------------------------------------------------------------------------------
+Press (h)it or (s)tand: h
+
+[ BLACK JACK  - END ]
+
+------------------------------------------------------------------------------
+ Dealer (6 cards): Three of Clubs, Two of Spades, Five of Spades, Two of Diamonds, Four of Hearts, Seven of Diamonds = 23
+ Player (2 cards): Nine of Clubs, Nine of Diamonds = 18
+ ------------------------------------------------------------------------------
+DEALER BURST!
+Press enter to continue...
 ```
 
 
