@@ -14,6 +14,7 @@ Personal answers to exercises from https://gophercises.com/ by Jon Calhoun.
 - [08 - Phone Number Normalizer](./08_phone/README.md)
 - [09 - Deck of Cards](./09_deck/README.md)
 - [10 - Blackjack Game](./10_blackjack/README.md)
+- [11 - Blackjack AI](./11_blackjack_ai/README.md)
 
 
 ## Tools
