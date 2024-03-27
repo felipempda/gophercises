@@ -47,6 +47,7 @@ func (ai humanAI) Play(hand []deck.Card, dealer deck.Card) Move {
 			fmt.Println("Wrong answer, try again!")
 		}
 	}
+	fmt.Printf("\n\n")
 	return decided
 }
 

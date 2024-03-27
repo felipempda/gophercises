@@ -22,25 +22,46 @@ type participant struct {
 }
 
 type Options struct {
-	Hands int
-	Decks int
+	Hands           int
+	Decks           int
+	BlackJackPayout float64
 }
 
 type GameState struct {
-	gameRound int
-	gameDeck  deck.Deck
-	player1   participant
-	dealer    participant
-	state     state
+	gameRound       int
+	gameDeck        deck.Deck
+	player1         participant
+	dealer          participant
+	state           state
+	nDecks          int
+	nHands          int
+	blackJackPayout float64
 }
 
 func New(ops Options) GameState {
-	gs := GameState{}
-	gs.gameDeck = deck.New(deck.WithMultipleDecks(atLeast(ops.Decks, 1)), deck.Shuffle)
-	// draw 2 cards
-	gs.player1.balance = 0
-	gs.state = statePlayerTurn
-	return gs
+
+	if ops.Decks <= 0 {
+		ops.Decks = 3
+	}
+	if ops.Hands <= 0 {
+		ops.Hands = 100
+	}
+	if ops.BlackJackPayout <= 0.0 {
+		ops.BlackJackPayout = 1.5
+	}
+
+	return GameState{
+		state: statePlayerTurn,
+		player1: participant{
+			balance: 0,
+		},
+		dealer: participant{
+			balance: 0,
+		},
+		nDecks:          ops.Decks,
+		nHands:          ops.Hands,
+		blackJackPayout: ops.BlackJackPayout,
+	}
 }
 
 func (gs *GameState) InitialDraw() {
@@ -150,7 +171,16 @@ func (gs *GameState) DrawCard() deck.Card {
 }
 
 func (gs *GameState) PlayGame(ai AI) int {
-	for n := 1; n <= 3; n++ {
+
+	gs.gameDeck = nil
+	min := gs.nDecks * 52 / 3
+
+	for n := 1; n <= gs.nHands; n++ {
+		//fmt.Printf("DECK SIZE: %d \n", len(gs.gameDeck))
+		if len(gs.gameDeck) < min {
+			//fmt.Print("\n\n\n*****Shuffling deck...******\n\n\n")
+			gs.gameDeck = deck.New(deck.WithMultipleDecks(atLeast(gs.nDecks, 1)), deck.Shuffle)
+		}
 		gs.InitialDraw()
 		for gs.gameRound = 1; gs.state == statePlayerTurn; gs.gameRound++ {
 
