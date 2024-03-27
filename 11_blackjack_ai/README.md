@@ -2,6 +2,57 @@
 
 [![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/blackjack_ai)
 
+## Example
+
+```yaml
+blackjack % go run examples/example_01/main.go
+Dealer: Seven of Hearts = 7
+Player (2 cards): Jack of Spades, Five of Diamonds = 15
+
+Press (h)it or (s)tand h
+[ BLACK JACK  - RESULTS ]
+
+------------------------------------------------------------------------------
+ Dealer (3 cards): Seven of Hearts, Three of Spades, Jack of Hearts = 20
+ Player (3 cards): Jack of Spades, Five of Diamonds, Jack of Clubs = 25
+ ------------------------------------------------------------------------------
+PLAYER BURST!
+
+Dealer: Ace of Clubs = 1
+Player (2 cards): Seven of Spades, Eight of Diamonds = 15
+
+Press (h)it or (s)tand h
+Dealer: Ace of Clubs = 1
+Player (3 cards): Seven of Spades, Eight of Diamonds, Six of Clubs = 21
+
+Press (h)it or (s)tand s
+[ BLACK JACK  - RESULTS ]
+
+------------------------------------------------------------------------------
+ Dealer (2 cards): Ace of Clubs, Queen of Clubs = 21
+ Player (3 cards): Seven of Spades, Eight of Diamonds, Six of Clubs = 21
+ ------------------------------------------------------------------------------
+DRAW!
+
+Dealer: King of Spades = 10
+Player (2 cards): Nine of Diamonds, Two of Hearts = 11
+
+Press (h)it or (s)tand h
+Dealer: King of Spades = 10
+Player (3 cards): Nine of Diamonds, Two of Hearts, King of Hearts = 21
+
+Press (h)it or (s)tand s
+[ BLACK JACK  - RESULTS ]
+
+------------------------------------------------------------------------------
+ Dealer (3 cards): King of Spades, Five of Spades, Queen of Spades = 25
+ Player (3 cards): Nine of Diamonds, Two of Hearts, King of Hearts = 21
+ ------------------------------------------------------------------------------
+DEALER BURST!
+
+Our AI won/lost: 0
+```
+
 ## Exercise details
 
 When we were completing the [blackjack](https://gophercises.com/exercises/blackjack) exercise we were focused on creating a command line game to play blackjack. As a result, we made a lot of decisions that made sense in that context but might not necessarily make sense in other contexts. For instance, we had a lot of exported fields, types, and functions that in a normal package wouldn't be exported, but for a `main` package it didn't really matter.

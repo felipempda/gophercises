@@ -1,20 +1,25 @@
 package blackjack
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/felipempda/gophercises/09_deck/deck"
-	"os"
 	"strings"
 )
 
 const (
-	_ Move = iota
-	MoveStand
-	MoveHit
+	stateBet state = iota
+	statePlayerTurn
+	stateDealerTurn
+	stateHandOver
 )
 
-type Move int
+type state int8
+
+type participant struct {
+	cards   handDeck
+	points  int
+	balance int
+}
 
 type Options struct {
 	Hands int
@@ -26,12 +31,21 @@ type GameState struct {
 	gameDeck  deck.Deck
 	player1   participant
 	dealer    participant
+	state     state
 }
 
 func New(ops Options) GameState {
 	gs := GameState{}
 	gs.gameDeck = deck.New(deck.WithMultipleDecks(atLeast(ops.Decks, 1)), deck.Shuffle)
 	// draw 2 cards
+	gs.player1.balance = 0
+	gs.state = statePlayerTurn
+	return gs
+}
+
+func (gs *GameState) InitialDraw() {
+	gs.player1.cards = nil
+	gs.dealer.cards = nil
 	for i := 0; i < 2; i++ {
 
 		for _, p := range []*participant{&gs.player1, &gs.dealer} {
@@ -39,72 +53,36 @@ func New(ops Options) GameState {
 			(*p).points = Score((*p).cards...)
 		}
 	}
-	return gs
+	gs.state = statePlayerTurn
 }
 
-// interface
-type AI interface {
-	Bet() int
-	Play(hand []deck.Card, dealer deck.Card) Move
-	Results(hand [][]deck.Card, dealer []deck.Card) string
-}
+func (gs *GameState) EndGame(ai AI) {
+	dealer_points := Score(gs.dealer.cards...)
+	player_points := Score(gs.player1.cards...)
 
-// human implementation of interface
-type HumanAI struct {
-}
-
-func (ai *HumanAI) Bet() int {
-	return 1
-}
-
-func (ai *HumanAI) Play(hand []deck.Card, dealer deck.Card) Move {
-	fmt.Printf("Dealer: %s = %d \n", dealer, Score(dealer))
-	fmt.Printf("Player (%d cards): %s = %d \n\n", len(hand), handDeck(hand), Score(hand...))
-	var decided Move
-	for true {
-		fmt.Printf("Press (h)it or (s)tand ")
-		reader := bufio.NewReader(os.Stdin)
-		got, _ := reader.ReadString('\n')
-		got = strings.Replace(got, "\n", "", -1)
-
-		if got == "h" {
-			decided = MoveHit
-			break
-		} else if got == "s" {
-			decided = MoveStand
-			break
-		} else {
-			fmt.Println("Wrong answer, try again!")
-		}
-	}
-	return decided
-}
-
-func (ai *HumanAI) Results(player [][]deck.Card, dealer []deck.Card) string {
-	dealer_points := Score(dealer...)
-	player_points := Score(player[0]...)
-
-	fmt.Printf("[ BLACK JACK  - RESULTS ]\n\n")
-	fmt.Printf("------------------------------------------------------------------------------\n")
-	fmt.Printf(" Dealer (%d cards): %s = %d \n", len(dealer), handDeck(dealer), dealer_points)
-	fmt.Printf(" Player (%d cards): %s = %d \n ", len(player[0]), handDeck(player[0]), player_points)
-	fmt.Printf("------------------------------------------------------------------------------\n")
-
+	ai.Results([][]deck.Card{gs.player1.cards}, gs.dealer.cards)
 	// if endGame {
 	switch {
 	case player_points > 21:
-		return "PLAYER BURST!"
+		fmt.Println("PLAYER BURST!")
+		gs.player1.balance--
 	case dealer_points > 21:
-		return ("DEALER BURST!")
+		fmt.Println("DEALER BURST!")
+		gs.player1.balance++
 	case player_points > dealer_points:
-		return ("PLAYER WINS!")
+		fmt.Println("PLAYER WINS!")
+		gs.player1.balance++
 	case dealer_points > player_points:
-		return ("DEALER WINS!")
+		fmt.Println("DEALER WINS!")
+		gs.player1.balance--
 	case dealer_points == player_points:
-		return ("DRAW!")
+		fmt.Println("DRAW!")
 	default:
-		return ("UNKNOWN!")
+		fmt.Println("UNKNOWN!")
 	}
+	fmt.Println()
+	gs.player1.cards = nil
+	gs.player1.cards = nil
 }
 
 func Score(cards ...deck.Card) int {
@@ -165,51 +143,41 @@ func Soft(cards ...deck.Card) bool {
 	return false
 }
 
-type participant struct {
-	cards  handDeck
-	points int
-	stand  bool
-	bet    int
-}
-
 func (gs *GameState) DrawCard() deck.Card {
 	var card deck.Card
 	card, gs.gameDeck = gs.gameDeck[0], gs.gameDeck[1:]
 	return card
 }
 
-func (gs *GameState) PlayGame(ai AI) string {
-	// players Turn
-	var move Move
-	for gs.gameRound = 1; !gs.player1.stand; gs.gameRound++ {
-		move = ai.Play(gs.player1.cards, gs.dealer.cards[0])
-		if move == MoveHit {
-			gs.player1.cards = append(gs.player1.cards, gs.DrawCard())
-			gs.player1.points = Score(gs.player1.cards...)
-			if gs.player1.points >= 21 {
-				gs.player1.stand = true
-			}
-		} else if move == MoveStand {
-			gs.player1.stand = true
+func (gs *GameState) PlayGame(ai AI) int {
+	for n := 1; n <= 3; n++ {
+		gs.InitialDraw()
+		for gs.gameRound = 1; gs.state == statePlayerTurn; gs.gameRound++ {
+
+			// prevent Player to change gameState by passing a copy
+			handCopy := make([]deck.Card, len(gs.player1.cards))
+			copy(handCopy, gs.player1.cards)
+
+			move := ai.Play(handCopy, gs.dealer.cards[0])
+			move(gs)
 		}
+
+		for gs.state == stateDealerTurn {
+			gs.dealersTurn()
+		}
+
+		gs.EndGame(ai)
 	}
 
-	// Dealers turn
-	for ; !gs.dealer.stand; gs.gameRound++ {
-		gs.dealersTurn()
-	}
-
-	results := ai.Results([][]deck.Card{gs.player1.cards}, gs.dealer.cards)
-
-	return results
+	return gs.player1.balance
 }
 
 func (gs *GameState) dealersTurn() {
-	if gs.dealer.points <= 16 {
+	if gs.dealer.points <= 16 || (gs.dealer.points == 17 && Soft(gs.dealer.cards...)) {
 		gs.dealer.cards = append(gs.dealer.cards, gs.DrawCard())
 		gs.dealer.points = Score(gs.dealer.cards...)
 	} else {
-		gs.dealer.stand = true
+		gs.state++
 	}
 }
 
@@ -222,4 +190,32 @@ func (h handDeck) String() string {
 		strs[i] = h[i].String()
 	}
 	return strings.Join(strs, ", ")
+}
+
+type Move func(gs *GameState)
+
+func MoveHit(gs *GameState) {
+	participantX := gs.CurrentParticipant()
+
+	participantX.cards = append(participantX.cards, gs.DrawCard())
+	participantX.points = Score(participantX.cards...)
+
+	if participantX.points > 21 {
+		MoveStand(gs)
+	}
+}
+
+func MoveStand(gs *GameState) {
+	gs.state++
+}
+
+func (gs *GameState) CurrentParticipant() *participant {
+	switch gs.state {
+	case statePlayerTurn:
+		return &gs.player1
+	case stateDealerTurn:
+		return &gs.dealer
+	default:
+		panic("internal state error")
+	}
 }
