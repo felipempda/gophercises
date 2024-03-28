@@ -103,7 +103,7 @@ func (gs *GameState) EndRound(ai AI) {
 	for idx, hand := range gs.player1.cards {
 		player_points := Score(hand...)
 		playerBJ := BlackJack(hand...)
-		fmt.Printf("Hand %d\n", idx+1)
+		fmt.Printf("\n\n\nHand %d\n", idx+1)
 
 		winnings := gs.player1.playerBet
 		switch {
