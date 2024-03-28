@@ -16,9 +16,10 @@ const (
 type state int8
 
 type participant struct {
-	cards   handDeck
-	points  int
-	balance int
+	cards     handDeck
+	points    int
+	balance   int
+	playerBet int
 }
 
 type Options struct {
@@ -74,36 +75,64 @@ func (gs *GameState) InitialDraw() {
 			(*p).points = Score((*p).cards...)
 		}
 	}
+
+	// testing BlackJacK manually:
+	// gs.player1.cards = []deck.Card{
+	// 	{Rank: deck.Five},
+	// 	{Rank: deck.Six},
+	// 	{Rank: deck.Ten},
+	// }
+	// gs.dealer.cards = []deck.Card{
+	// 	{Rank: deck.Ace},
+	// 	{Rank: deck.Ten},
+	// }
+	// gs.player1.points = Score(gs.player1.cards...)
+	// gs.dealer.points = Score(gs.dealer.cards...)
 	gs.state = statePlayerTurn
 }
 
 func (gs *GameState) EndGame(ai AI) {
 	dealer_points := Score(gs.dealer.cards...)
 	player_points := Score(gs.player1.cards...)
+	playerBJ, dealerBJ := BlackJack(gs.player1.cards...), BlackJack(gs.dealer.cards...)
 
 	ai.Results([][]deck.Card{gs.player1.cards}, gs.dealer.cards)
-	// if endGame {
+
+	winnings := gs.player1.playerBet
 	switch {
+	case playerBJ && dealerBJ:
+		fmt.Println("BOTH BLACK JACK!")
+		winnings = 0
+	case dealerBJ:
+		fmt.Println("DEALER BLACK JACK!")
+		winnings = winnings * -1
+	case playerBJ:
+		fmt.Println("PLAYER BLACK JACK!")
+		winnings = int(float64(gs.player1.playerBet) * gs.blackJackPayout)
 	case player_points > 21:
 		fmt.Println("PLAYER BURST!")
-		gs.player1.balance--
+		winnings = winnings * -1
 	case dealer_points > 21:
 		fmt.Println("DEALER BURST!")
-		gs.player1.balance++
 	case player_points > dealer_points:
 		fmt.Println("PLAYER WINS!")
-		gs.player1.balance++
 	case dealer_points > player_points:
 		fmt.Println("DEALER WINS!")
-		gs.player1.balance--
+		winnings = winnings * -1
 	case dealer_points == player_points:
 		fmt.Println("DRAW!")
+		winnings = 0
 	default:
-		fmt.Println("UNKNOWN!")
+		panic("UNKNOWN!")
 	}
 	fmt.Println()
 	gs.player1.cards = nil
 	gs.player1.cards = nil
+	fmt.Printf(">> Previous Balance: %d\n", gs.player1.balance)
+	gs.player1.balance += winnings
+	fmt.Printf(">>> Winnings: %d\n", winnings)
+	fmt.Printf(">>> New Balance: %d\n\n", gs.player1.balance)
+
 }
 
 func Score(cards ...deck.Card) int {
@@ -176,11 +205,14 @@ func (gs *GameState) PlayGame(ai AI) int {
 	min := gs.nDecks * 52 / 3
 
 	for n := 1; n <= gs.nHands; n++ {
+		shuffled := false
 		//fmt.Printf("DECK SIZE: %d \n", len(gs.gameDeck))
 		if len(gs.gameDeck) < min {
 			//fmt.Print("\n\n\n*****Shuffling deck...******\n\n\n")
 			gs.gameDeck = deck.New(deck.WithMultipleDecks(atLeast(gs.nDecks, 1)), deck.Shuffle)
+			shuffled = true
 		}
+		gs.Bet(ai, shuffled)
 		gs.InitialDraw()
 		for gs.gameRound = 1; gs.state == statePlayerTurn; gs.gameRound++ {
 
@@ -248,4 +280,13 @@ func (gs *GameState) CurrentParticipant() *participant {
 	default:
 		panic("internal state error")
 	}
+}
+
+func (gs *GameState) Bet(ai AI, shuffled bool) {
+	bet := ai.Bet(shuffled)
+	gs.player1.playerBet = bet
+}
+
+func BlackJack(hand ...deck.Card) bool {
+	return len(hand) == 2 && Score(hand...) == 21
 }

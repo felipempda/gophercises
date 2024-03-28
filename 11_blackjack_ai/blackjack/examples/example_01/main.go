@@ -9,7 +9,7 @@ import (
 func main() {
 	ai := blackjack.HumanAI()
 	opts := blackjack.Options{
-		Hands: 100,
+		Hands: 3,
 		Decks: 3,
 	}
 	game := blackjack.New(opts)

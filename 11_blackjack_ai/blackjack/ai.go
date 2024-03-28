@@ -10,7 +10,7 @@ import (
 
 // interface
 type AI interface {
-	Bet() int
+	Bet(shuffled bool) int
 	Play(hand []deck.Card, dealer deck.Card) Move
 	Results(hand [][]deck.Card, dealer []deck.Card)
 }
@@ -23,11 +23,19 @@ func HumanAI() AI {
 type humanAI struct {
 }
 
-func (ai humanAI) Bet() int {
-	return 1
+func (ai humanAI) Bet(shuffled bool) int {
+	if shuffled {
+		fmt.Println("Deck has just been shuffled!")
+	}
+	fmt.Printf("How much would you like to bet? ")
+	var bet int
+	fmt.Scanf("%d\n", &bet)
+	return bet
 }
 
 func (ai humanAI) Play(hand []deck.Card, dealer deck.Card) Move {
+	fmt.Printf("[ YOUR TURN ]\n")
+	fmt.Printf("------------------------------------------------------------------------------\n")
 	fmt.Printf("Dealer: %s = %d \n", dealer, Score(dealer))
 	fmt.Printf("Player (%d cards): %s = %d \n\n", len(hand), handDeck(hand), Score(hand...))
 	var decided Move
@@ -55,7 +63,7 @@ func (ai humanAI) Results(player [][]deck.Card, dealer []deck.Card) {
 	dealer_points := Score(dealer...)
 	player_points := Score(player[0]...)
 
-	fmt.Printf("[ BLACK JACK  - RESULTS ]\n\n")
+	fmt.Printf("[ HAND  - RESULTS ]\n")
 	fmt.Printf("------------------------------------------------------------------------------\n")
 	fmt.Printf(" Dealer (%d cards): %s = %d \n", len(dealer), handDeck(dealer), dealer_points)
 	fmt.Printf(" Player (%d cards): %s = %d \n ", len(player[0]), handDeck(player[0]), player_points)
