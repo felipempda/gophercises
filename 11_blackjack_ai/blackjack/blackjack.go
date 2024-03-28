@@ -301,8 +301,7 @@ func MoveStand(gs *GameState) error {
 }
 
 func MoveDouble(gs *GameState) error {
-	total := len(gs.player1.cards)
-	if total != 2 {
+	if len(*gs.CurrentParticipant()) != 2 {
 		return errorCantDouble
 	}
 	gs.player1.playerBet *= 2
