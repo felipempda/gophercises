@@ -178,24 +178,6 @@ func atLeast(a, b int) int {
 	}
 }
 
-func AnyLessThan(set []int, compare int) bool {
-	for _, val := range set {
-		if val < compare {
-			return true
-		}
-	}
-	return false
-}
-
-func AnyMoreThan(set []int, compare int) bool {
-	for _, val := range set {
-		if val > compare {
-			return true
-		}
-	}
-	return false
-}
-
 func Soft(cards ...deck.Card) bool {
 	var total int
 	var numberAces int
@@ -361,12 +343,4 @@ func MoveSplit(gs *GameState) error {
 	gs.player1.cards = append(gs.player1.cards, newDeck)
 	gs.player1.cards[gs.player1.cardsIdx] = gs.player1.cards[gs.player1.cardsIdx][:1]
 	return nil
-}
-
-func convertHandDeckToArray(hand []handDeck) [][]deck.Card {
-	ret := make([][]deck.Card, len(hand))
-	for i, thisHand := range hand {
-		ret[i] = thisHand
-	}
-	return ret
 }
