@@ -1,6 +1,7 @@
 package blackjack
 
 import (
+	"errors"
 	"fmt"
 	"github.com/felipempda/gophercises/09_deck/deck"
 	"strings"
@@ -13,11 +14,18 @@ const (
 	stateHandOver
 )
 
+var (
+	errorBust          = errors.New("Player Busted")
+	errorCantDouble    = errors.New("Can only double when two cards are in your hand!")
+	errorCantSplitSize = errors.New("Can only split when you have two cards!")
+	errorCantSplitSame = errors.New("Can only split when cards are be same Rank!")
+)
+
 type state int8
 
 type participant struct {
-	cards     handDeck
-	points    int
+	cards     []handDeck
+	cardsIdx  int
 	balance   int
 	playerBet int
 }
@@ -32,7 +40,7 @@ type GameState struct {
 	gameRound       int
 	gameDeck        deck.Deck
 	player1         participant
-	dealer          participant
+	dealer          handDeck
 	state           state
 	nDecks          int
 	nHands          int
@@ -54,11 +62,10 @@ func New(ops Options) GameState {
 	return GameState{
 		state: statePlayerTurn,
 		player1: participant{
+			cards:   []handDeck{},
 			balance: 0,
 		},
-		dealer: participant{
-			balance: 0,
-		},
+		dealer:          handDeck{},
 		nDecks:          ops.Decks,
 		nHands:          ops.Hands,
 		blackJackPayout: ops.BlackJackPayout,
@@ -66,73 +73,74 @@ func New(ops Options) GameState {
 }
 
 func (gs *GameState) InitialDraw() {
-	gs.player1.cards = nil
-	gs.dealer.cards = nil
+	gs.player1.cards = make([]handDeck, 1, 1)
+	gs.player1.cardsIdx = 0
+	gs.dealer = nil
 	for i := 0; i < 2; i++ {
 
-		for _, p := range []*participant{&gs.player1, &gs.dealer} {
-			(*p).cards = append((*p).cards, gs.DrawCard())
-			(*p).points = Score((*p).cards...)
-		}
+		gs.player1.cards[0] = append(gs.player1.cards[0], gs.DrawCard())
+		gs.dealer = append(gs.dealer, gs.DrawCard())
 	}
 
 	// testing BlackJacK manually:
-	// gs.player1.cards = []deck.Card{
+	// gs.player1.cards[0] = []deck.Card{
 	// 	{Rank: deck.Five},
 	// 	{Rank: deck.Six},
 	// 	{Rank: deck.Ten},
 	// }
-	// gs.dealer.cards = []deck.Card{
+	// gs.dealer = []deck.Card{
 	// 	{Rank: deck.Ace},
 	// 	{Rank: deck.Ten},
 	// }
-	// gs.player1.points = Score(gs.player1.cards...)
-	// gs.dealer.points = Score(gs.dealer.cards...)
 	gs.state = statePlayerTurn
 }
 
-func (gs *GameState) EndGame(ai AI) {
-	dealer_points := Score(gs.dealer.cards...)
-	player_points := Score(gs.player1.cards...)
-	playerBJ, dealerBJ := BlackJack(gs.player1.cards...), BlackJack(gs.dealer.cards...)
+func (gs *GameState) EndRound(ai AI) {
+	dealer_points := Score(gs.dealer...)
+	dealerBJ := BlackJack(gs.dealer...)
 
-	ai.Results([][]deck.Card{gs.player1.cards}, gs.dealer.cards)
+	allHands := make([][]deck.Card, len(gs.player1.cards))
+	for idx, hand := range gs.player1.cards {
+		player_points := Score(hand...)
+		playerBJ := BlackJack(hand...)
+		fmt.Printf("Hand %d\n", idx+1)
 
-	winnings := gs.player1.playerBet
-	switch {
-	case playerBJ && dealerBJ:
-		fmt.Println("BOTH BLACK JACK!")
-		winnings = 0
-	case dealerBJ:
-		fmt.Println("DEALER BLACK JACK!")
-		winnings = winnings * -1
-	case playerBJ:
-		fmt.Println("PLAYER BLACK JACK!")
-		winnings = int(float64(gs.player1.playerBet) * gs.blackJackPayout)
-	case player_points > 21:
-		fmt.Println("PLAYER BURST!")
-		winnings = winnings * -1
-	case dealer_points > 21:
-		fmt.Println("DEALER BURST!")
-	case player_points > dealer_points:
-		fmt.Println("PLAYER WINS!")
-	case dealer_points > player_points:
-		fmt.Println("DEALER WINS!")
-		winnings = winnings * -1
-	case dealer_points == player_points:
-		fmt.Println("DRAW!")
-		winnings = 0
-	default:
-		panic("UNKNOWN!")
+		winnings := gs.player1.playerBet
+		switch {
+		case playerBJ && dealerBJ:
+			fmt.Println("BOTH BLACK JACK!")
+			winnings = 0
+		case dealerBJ:
+			fmt.Println("DEALER BLACK JACK!")
+			winnings = winnings * -1
+		case playerBJ:
+			fmt.Println("PLAYER BLACK JACK!")
+			winnings = int(float64(gs.player1.playerBet) * gs.blackJackPayout)
+		case player_points > 21:
+			fmt.Println("PLAYER BURST!")
+			winnings = winnings * -1
+		case dealer_points > 21:
+			fmt.Println("DEALER BURST!")
+		case player_points > dealer_points:
+			fmt.Println("PLAYER WINS!")
+		case dealer_points > player_points:
+			fmt.Println("DEALER WINS!")
+			winnings = winnings * -1
+		default: //case dealer_points == player_points:
+			fmt.Println("DRAW!")
+			winnings = 0
+		}
+		fmt.Printf(">> Previous Balance: %d\n", gs.player1.balance)
+		gs.player1.balance += winnings
+		fmt.Printf(">>> Winnings: %d\n", winnings)
+		fmt.Printf(">>> New Balance: %d\n\n", gs.player1.balance)
+
+		allHands[idx] = hand
 	}
+	ai.Results(allHands, gs.dealer)
 	fmt.Println()
 	gs.player1.cards = nil
 	gs.player1.cards = nil
-	fmt.Printf(">> Previous Balance: %d\n", gs.player1.balance)
-	gs.player1.balance += winnings
-	fmt.Printf(">>> Winnings: %d\n", winnings)
-	fmt.Printf(">>> New Balance: %d\n\n", gs.player1.balance)
-
 }
 
 func Score(cards ...deck.Card) int {
@@ -168,6 +176,24 @@ func atLeast(a, b int) int {
 	} else {
 		return a
 	}
+}
+
+func AnyLessThan(set []int, compare int) bool {
+	for _, val := range set {
+		if val < compare {
+			return true
+		}
+	}
+	return false
+}
+
+func AnyMoreThan(set []int, compare int) bool {
+	for _, val := range set {
+		if val > compare {
+			return true
+		}
+	}
+	return false
 }
 
 func Soft(cards ...deck.Card) bool {
@@ -217,27 +243,38 @@ func (gs *GameState) PlayGame(ai AI) int {
 		for gs.gameRound = 1; gs.state == statePlayerTurn; gs.gameRound++ {
 
 			// prevent Player to change gameState by passing a copy
-			handCopy := make([]deck.Card, len(gs.player1.cards))
-			copy(handCopy, gs.player1.cards)
+			currentDeck := gs.CurrentParticipant()
+			handCopy := make([]deck.Card, len(gs.player1.cards[gs.player1.cardsIdx]))
+			copy(handCopy, *currentDeck)
 
-			move := ai.Play(handCopy, gs.dealer.cards[0])
-			move(gs)
+			move := ai.Play(gs.player1.cardsIdx+1, handCopy, gs.dealer[0])
+			err := move(gs)
+			switch err {
+			case errorBust:
+				MoveStand(gs)
+			case nil:
+				// non-critical errors:
+			case errorCantDouble, errorCantSplitSame, errorCantSplitSize:
+				fmt.Println(err)
+			default:
+				panic(err)
+			}
 		}
 
 		for gs.state == stateDealerTurn {
 			gs.dealersTurn()
 		}
 
-		gs.EndGame(ai)
+		gs.EndRound(ai)
 	}
 
 	return gs.player1.balance
 }
 
 func (gs *GameState) dealersTurn() {
-	if gs.dealer.points <= 16 || (gs.dealer.points == 17 && Soft(gs.dealer.cards...)) {
-		gs.dealer.cards = append(gs.dealer.cards, gs.DrawCard())
-		gs.dealer.points = Score(gs.dealer.cards...)
+	dealerPoints := Score(gs.dealer...)
+	if dealerPoints <= 16 || (dealerPoints == 17 && Soft(gs.dealer...)) {
+		gs.dealer = append(gs.dealer, gs.DrawCard())
 	} else {
 		gs.state++
 	}
@@ -254,27 +291,47 @@ func (h handDeck) String() string {
 	return strings.Join(strs, ", ")
 }
 
-type Move func(gs *GameState)
+type Move func(gs *GameState) error
 
-func MoveHit(gs *GameState) {
-	participantX := gs.CurrentParticipant()
+func MoveHit(gs *GameState) error {
+	currentHand := gs.CurrentParticipant()
 
-	participantX.cards = append(participantX.cards, gs.DrawCard())
-	participantX.points = Score(participantX.cards...)
+	*currentHand = append(*currentHand, gs.DrawCard())
 
-	if participantX.points > 21 {
-		MoveStand(gs)
+	if Score(*currentHand...) > 21 {
+		return errorBust //MoveStand(gs)
 	}
+	return nil
 }
 
-func MoveStand(gs *GameState) {
-	gs.state++
+func MoveStand(gs *GameState) error {
+	if gs.state == statePlayerTurn {
+		gs.player1.cardsIdx++
+		if gs.player1.cardsIdx == len(gs.player1.cards) {
+			gs.state++
+		}
+		return nil
+	}
+	if gs.state == stateDealerTurn {
+		gs.state++
+	}
+	return errors.New("Invalidate State")
 }
 
-func (gs *GameState) CurrentParticipant() *participant {
+func MoveDouble(gs *GameState) error {
+	total := len(gs.player1.cards)
+	if total != 2 {
+		return errorCantDouble
+	}
+	gs.player1.playerBet *= 2
+	MoveHit(gs)
+	return MoveStand(gs)
+}
+
+func (gs *GameState) CurrentParticipant() *handDeck {
 	switch gs.state {
 	case statePlayerTurn:
-		return &gs.player1
+		return &gs.player1.cards[gs.player1.cardsIdx]
 	case stateDealerTurn:
 		return &gs.dealer
 	default:
@@ -289,4 +346,27 @@ func (gs *GameState) Bet(ai AI, shuffled bool) {
 
 func BlackJack(hand ...deck.Card) bool {
 	return len(hand) == 2 && Score(hand...) == 21
+}
+
+func MoveSplit(gs *GameState) error {
+	total := len(gs.player1.cards[gs.player1.cardsIdx])
+	if total != 2 {
+		return errorCantSplitSize
+	}
+	if gs.player1.cards[gs.player1.cardsIdx][0].Rank != gs.player1.cards[gs.player1.cardsIdx][1].Rank {
+		return errorCantSplitSame
+	}
+
+	newDeck := []deck.Card{gs.player1.cards[gs.player1.cardsIdx][1]}
+	gs.player1.cards = append(gs.player1.cards, newDeck)
+	gs.player1.cards[gs.player1.cardsIdx] = gs.player1.cards[gs.player1.cardsIdx][:1]
+	return nil
+}
+
+func convertHandDeckToArray(hand []handDeck) [][]deck.Card {
+	ret := make([][]deck.Card, len(hand))
+	for i, thisHand := range hand {
+		ret[i] = thisHand
+	}
+	return ret
 }

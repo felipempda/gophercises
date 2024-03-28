@@ -2,53 +2,119 @@
 
 [![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/blackjack_ai)
 
+## Lessons learned
+
+- impl binary: `go install github.com/josharian/impl@latest`
+- `impl 'ai *basicAI' blackjack.AI`
+
 ## Example
 
 ```yaml
 blackjack % go run examples/example_01/main.go
-Dealer: Seven of Hearts = 7
-Player (2 cards): Jack of Spades, Five of Diamonds = 15
-
-Press (h)it or (s)tand h
-[ BLACK JACK  - RESULTS ]
-
+Deck has just been shuffled!
+How much would you like to bet? 100
+[ YOUR TURN - HAND 1 ]
 ------------------------------------------------------------------------------
- Dealer (3 cards): Seven of Hearts, Three of Spades, Jack of Hearts = 20
- Player (3 cards): Jack of Spades, Five of Diamonds, Jack of Clubs = 25
- ------------------------------------------------------------------------------
+Dealer: Seven of Diamonds = 7
+Player [hand 1] (2 cards): Six of Hearts, King of Clubs = 16
+Press (h)it or (s)tand or (d)ouble or s(p)lit p
+Can't split now (two cards must be same Rank)
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Seven of Diamonds = 7
+Player [hand 1] (2 cards): Six of Hearts, King of Clubs = 16
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Seven of Diamonds = 7
+Player [hand 1] (3 cards): Six of Hearts, King of Clubs, Ace of Diamonds = 17
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+Player Busted
+Hand 1
 PLAYER BURST!
+>> Previous Balance: 0
+>>> Winnings: -100
+>>> New Balance: -100
 
-Dealer: Ace of Clubs = 1
-Player (2 cards): Seven of Spades, Eight of Diamonds = 15
-
-Press (h)it or (s)tand h
-Dealer: Ace of Clubs = 1
-Player (3 cards): Seven of Spades, Eight of Diamonds, Six of Clubs = 21
-
-Press (h)it or (s)tand s
-[ BLACK JACK  - RESULTS ]
-
+[ HAND  - RESULTS ]
 ------------------------------------------------------------------------------
- Dealer (2 cards): Ace of Clubs, Queen of Clubs = 21
- Player (3 cards): Seven of Spades, Eight of Diamonds, Six of Clubs = 21
- ------------------------------------------------------------------------------
-DRAW!
-
-Dealer: King of Spades = 10
-Player (2 cards): Nine of Diamonds, Two of Hearts = 11
-
-Press (h)it or (s)tand h
-Dealer: King of Spades = 10
-Player (3 cards): Nine of Diamonds, Two of Hearts, King of Hearts = 21
-
-Press (h)it or (s)tand s
-[ BLACK JACK  - RESULTS ]
-
+ Dealer (3 cards): Seven of Diamonds, Eight of Spades, Eight of Spades = 23
+ Player [hand 1] (4 cards): Six of Hearts, King of Clubs, Ace of Diamonds, King of Spades = 27
 ------------------------------------------------------------------------------
- Dealer (3 cards): King of Spades, Five of Spades, Queen of Spades = 25
- Player (3 cards): Nine of Diamonds, Two of Hearts, King of Hearts = 21
- ------------------------------------------------------------------------------
+
+How much would you like to bet? 100
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 1] (2 cards): Seven of Hearts, Seven of Diamonds = 14
+Press (h)it or (s)tand or (d)ouble or s(p)lit p
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 1] (1 cards): Seven of Hearts = 7
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 1] (2 cards): Seven of Hearts, Four of Diamonds = 11
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 1] (3 cards): Seven of Hearts, Four of Diamonds, Nine of Diamonds = 20
+Press (h)it or (s)tand or (d)ouble or s(p)lit s
+[ YOUR TURN - HAND 2 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 2] (1 cards): Seven of Diamonds = 7
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+[ YOUR TURN - HAND 2 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 2] (2 cards): Seven of Diamonds, Four of Clubs = 11
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+[ YOUR TURN - HAND 2 ]
+------------------------------------------------------------------------------
+Dealer: Queen of Clubs = 10
+Player [hand 2] (3 cards): Seven of Diamonds, Four of Clubs, Jack of Spades = 21
+Press (h)it or (s)tand or (d)ouble or s(p)lit s
+Hand 1
 DEALER BURST!
+>> Previous Balance: -100
+>>> Winnings: 100
+>>> New Balance: 0
+
+Hand 2
+DEALER BURST!
+>> Previous Balance: 0
+>>> Winnings: 100
+>>> New Balance: 100
+
+[ HAND  - RESULTS ]
+------------------------------------------------------------------------------
+ Dealer (3 cards): Queen of Clubs, Two of Clubs, Jack of Diamonds = 22
+ Player [hand 1] (3 cards): Seven of Hearts, Four of Diamonds, Nine of Diamonds = 20
+ Player [hand 2] (3 cards): Seven of Diamonds, Four of Clubs, Jack of Spades = 21
+------------------------------------------------------------------------------
+
+How much would you like to bet? 100
+[ YOUR TURN - HAND 1 ]
+------------------------------------------------------------------------------
+Dealer: Three of Diamonds = 3
+Player [hand 1] (2 cards): Seven of Hearts, Nine of Spades = 16
+Press (h)it or (s)tand or (d)ouble or s(p)lit h
+Player Busted
+Hand 1
+PLAYER BURST!
+>> Previous Balance: 100
+>>> Winnings: -100
+>>> New Balance: 0
+
+[ HAND  - RESULTS ]
+------------------------------------------------------------------------------
+ Dealer (3 cards): Three of Diamonds, Seven of Diamonds, Ten of Diamonds = 20
+ Player [hand 1] (3 cards): Seven of Hearts, Nine of Spades, Nine of Hearts = 25
+------------------------------------------------------------------------------
 
 Our AI won/lost: 0
 ```
