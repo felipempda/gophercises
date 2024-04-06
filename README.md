@@ -15,6 +15,7 @@ Personal answers to exercises from https://gophercises.com/ by Jon Calhoun.
 - [09 - Deck of Cards](./09_deck/README.md)
 - [10 - Blackjack Game](./10_blackjack/README.md)
 - [11 - Blackjack AI](./11_blackjack_ai/README.md)
+- [12 - File Renaming Tool](./12_renamer/README.md)
 
 
 ## Tools
