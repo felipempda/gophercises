@@ -2,6 +2,44 @@
 
 [![exercise status: released](https://img.shields.io/badge/exercise%20status-released-green.svg?style=for-the-badge)](https://gophercises.com/exercises/renamer)
 
+## Solution
+
+```yaml
+$  go run ./renamer.go -h
+Usage:
+  renamer [OPTIONS]
+
+Application Options:
+  -d, --directory=          Directory to find files to rename
+  -f, --find-pattern-regex= Pattern regex to find files to replace
+  -r, --rename-pattern=     Pattern to rename files. Use <N> for current file and <T> for all files
+      --dry-run             Mock the renaming of file
+
+Help Options:
+  -h, --help                Show this help message
+
+exit status 255
+
+$  go run ./renamer.go -d ./sample -f "birthday_[0-9][0-9][0-9].txt" -r "birthday_(<N> out of <T>).txt" a
+Too many arguments: [a]
+exit status 255
+
+$  go run ./renamer.go -d ./sample -f "birthday_[0-9][0-9][0-9].txt" -r "birthday_(<N> out of <T>).txt" --dry-run
+Found 4 file(s)
+renaming file path sample/birthday_001.txt to sample/birthday_(1 out of 4).txt...[DRY-RUN]
+renaming file path sample/birthday_002.txt to sample/birthday_(2 out of 4).txt...[DRY-RUN]
+renaming file path sample/birthday_003.txt to sample/birthday_(3 out of 4).txt...[DRY-RUN]
+renaming file path sample/birthday_004.txt to sample/birthday_(4 out of 4).txt...[DRY-RUN]
+
+$  go run ./renamer.go -d ./sample -f "birthday_[0-9][0-9][0-9].txt" -r "birthday_(<N> out of <T>).txt"
+Found 4 file(s)
+renaming file path sample/birthday_001.txt to sample/birthday_(1 out of 4).txt...
+renaming file path sample/birthday_002.txt to sample/birthday_(2 out of 4).txt...
+renaming file path sample/birthday_003.txt to sample/birthday_(3 out of 4).txt...
+renaming file path sample/birthday_004.txt to sample/birthday_(4 out of 4).txt...
+
+```
+
 ## Exercise details
 
 In this exercise we are going to explore ways to navigate a file system by creating an application that will rename a bunch of user files in nested directories. The exact files you rename are up to you, but I have provided a sample directory in case you need some ideas. It has the files and directories shown below.
