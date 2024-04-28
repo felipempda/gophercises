@@ -19,10 +19,10 @@ type foundFile struct {
 func main() {
 
 	var opts struct {
-		CurrentDir       string `short:"d" long:"directory" description:"Directory to find files to rename" required:"true"`
-		FindPatternRegex string `short:"f" long:"find-pattern-regex" description:"Pattern regex to find files to replace" required:"true"`
-		RenamePattern    string `short:"r" long:"rename-pattern" description:"Pattern to rename files. Use <N> for current file and <T> for all files" required:"true"`
-		DryRun           bool   `long:"dry-run" description:"Mock the renaming of file" required:"false"`
+		CurrentDir         string `short:"d" long:"directory" description:"Directory to find files to rename" required:"true"`
+		FindPatternRegex   string `short:"f" long:"find-pattern-regex" description:"Pattern regex to find files to replace" required:"true"`
+		RenamePatternRegex string `short:"r" long:"rename-pattern-regex" description:"Pattern regex to rename files. Use <N> for current file and <T> for all files" required:"true"`
+		DryRun             bool   `long:"dry-run" description:"Mock the renaming of file" required:"false"`
 	}
 	args, err := flags.Parse(&opts)
 	// opts.CurrentDir := "sample"
@@ -35,20 +35,23 @@ func main() {
 		fmt.Println("Too many arguments:", args)
 		os.Exit(-1)
 	}
-
-	foundFiles := findFilesToRename(opts.CurrentDir, opts.FindPatternRegex)
+	re := regexp.MustCompile(opts.FindPatternRegex)
+	foundFiles := findFilesToRename(opts.CurrentDir, re)
 	fmt.Printf("Found %d file(s)\n", len(foundFiles))
-	renameFiles(foundFiles, opts.RenamePattern, opts.DryRun)
+	renameFiles(foundFiles, re, opts.RenamePatternRegex, opts.DryRun)
 }
 
-func findFilesToRename(currentDir string, findPatternRegex string) []foundFile {
+func findFilesToRename(currentDir string, re *regexp.Regexp) []foundFile {
 	foundFiles := make([]foundFile, 0)
 	filepath.Walk(currentDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
 			return err
 		}
-		if !info.IsDir() && matchesPattern(info, findPatternRegex) {
+		if info.IsDir() {
+			return nil
+		}
+		if matchesPattern(info, re) {
 			foundFiles = append(foundFiles, foundFile{path: path, info: info})
 		}
 		return nil
@@ -56,18 +59,18 @@ func findFilesToRename(currentDir string, findPatternRegex string) []foundFile {
 	return foundFiles
 }
 
-func matchesPattern(fileInfo fs.FileInfo, findPatternRegex string) bool {
-	re := regexp.MustCompile(findPatternRegex)
+func matchesPattern(fileInfo fs.FileInfo, re *regexp.Regexp) bool {
 	return re.MatchString(fileInfo.Name())
 }
 
-func renameFiles(foundFiles []foundFile, renamePattern string, dryRun bool) {
+func renameFiles(foundFiles []foundFile, re *regexp.Regexp, renamePattern string, dryRun bool) {
 	total := len(foundFiles)
 	for i, file := range foundFiles {
-		newName := renamePattern
+
+		newName := re.ReplaceAllString(file.info.Name(), renamePattern)
 		newName = strings.Replace(newName, "<N>", strconv.Itoa(i+1), -1)
 		newName = strings.Replace(newName, "<T>", strconv.Itoa(total), -1)
-		newPath := strings.Replace(file.path, file.info.Name(), newName, -1) // it could be improved
+		newPath := filepath.Join(filepath.Dir(file.path), newName)
 		err := moveFilePath(file.info, file.path, newPath, dryRun)
 		if err != nil {
 			fmt.Println(err)

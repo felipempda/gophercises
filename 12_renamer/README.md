@@ -24,20 +24,22 @@ $  go run ./renamer.go -d ./sample -f "birthday_[0-9][0-9][0-9].txt" -r "birthda
 Too many arguments: [a]
 exit status 255
 
-$  go run ./renamer.go -d ./sample -f "birthday_[0-9][0-9][0-9].txt" -r "birthday_(<N> out of <T>).txt" --dry-run
+$  go run ./renamer.go -d ./sample -f "(birthday)_[0-9]+.txt" -r '${1}_(<N> out of <T>).txt' --dry-run
 Found 4 file(s)
 renaming file path sample/birthday_001.txt to sample/birthday_(1 out of 4).txt...[DRY-RUN]
 renaming file path sample/birthday_002.txt to sample/birthday_(2 out of 4).txt...[DRY-RUN]
 renaming file path sample/birthday_003.txt to sample/birthday_(3 out of 4).txt...[DRY-RUN]
 renaming file path sample/birthday_004.txt to sample/birthday_(4 out of 4).txt...[DRY-RUN]
-
-$  go run ./renamer.go -d ./sample -f "birthday_[0-9][0-9][0-9].txt" -r "birthday_(<N> out of <T>).txt"
-Found 4 file(s)
-renaming file path sample/birthday_001.txt to sample/birthday_(1 out of 4).txt...
-renaming file path sample/birthday_002.txt to sample/birthday_(2 out of 4).txt...
-renaming file path sample/birthday_003.txt to sample/birthday_(3 out of 4).txt...
-renaming file path sample/birthday_004.txt to sample/birthday_(4 out of 4).txt...
-
+$  go run ./renamer.go -d ./sample -f "([a-zA-Z]*)_[0-9]+.txt" -r '${1}_(<N> out of <T>).txt' --dry-run
+Found 8 file(s)
+renaming file path sample/birthday_001.txt to sample/birthday_(1 out of 8).txt...[DRY-RUN]
+renaming file path sample/birthday_002.txt to sample/birthday_(2 out of 8).txt...[DRY-RUN]
+renaming file path sample/birthday_003.txt to sample/birthday_(3 out of 8).txt...[DRY-RUN]
+renaming file path sample/birthday_004.txt to sample/birthday_(4 out of 8).txt...[DRY-RUN]
+renaming file path sample/easter_004.txt to sample/easter_(5 out of 8).txt...[DRY-RUN]
+renaming file path sample/nested/n_008.txt to sample/nested/n_(6 out of 8).txt...[DRY-RUN]
+renaming file path sample/nested/n_009.txt to sample/nested/n_(7 out of 8).txt...[DRY-RUN]
+renaming file path sample/nested/n_010.txt to sample/nested/n_(8 out of 8).txt...[DRY-RUN]
 ```
 
 ## Exercise details
