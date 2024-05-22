@@ -33,7 +33,7 @@ func main() {
 func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		stories, err := getTopStories(numStories)
+		stories, err := getCachedTopStories(numStories)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -47,6 +47,46 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 			return
 		}
 	})
+}
+
+var (
+	cache           []item
+	cacheExpiration time.Time
+)
+
+// could Not simulate Race
+func getCachedTopStories(numStories int) ([]item, error) {
+
+	// expired Cache
+	var items []item
+	var err error
+	if time.Now().Sub(cacheExpiration) > 0 || len(cache) == 0 {
+		fmt.Println("cache miss")
+		items, err = getTopStories(numStories)
+		cache = items
+		cacheExpiration = time.Now().Add(10 * time.Second)
+	} else {
+		fmt.Println("cache hit")
+		items = cache
+		err = nil
+	}
+	return items, err
+}
+
+// could Not simulate Race
+func getCachedTopStoriesProf(numStories int) ([]item, error) {
+
+	if time.Now().Sub(cacheExpiration) < 0 {
+		return cache, nil
+	}
+
+	items, err := getTopStories(numStories)
+	if err != nil {
+		return nil, err
+	}
+	cache = items
+	cacheExpiration = time.Now().Add(10 * time.Second)
+	return cache, nil
 }
 
 func getTopStories(numStories int) ([]item, error) {

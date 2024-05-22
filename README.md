@@ -19,6 +19,7 @@ Personal answers to exercises from https://gophercises.com/ by Jon Calhoun.
 - [13 - Quiet HN](./13_quiet_hn/README.md)
 
 
-## Tools
+## Tools and commands
  - golps
  - goimports
+ - go run/build -race
