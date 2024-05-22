@@ -33,7 +33,7 @@ func main() {
 func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		stories, err := getStories(numStories)
+		stories, err := getTopStories(numStories)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -49,19 +49,32 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 	})
 }
 
-func getStories(numStories int) ([]item, error) {
+func getTopStories(numStories int) ([]item, error) {
 	var client hn.Client
 	ids, err := client.TopItems()
 	if err != nil {
 		return nil, errors.New("Failed to load top stories")
 	}
+	var resultItems []item
+	at := 0
+	for len(resultItems) < numStories {
+		needed := (numStories - len(resultItems)) * 5 / 4 // add 25%
+		temp := getStories(ids[at:at+needed], client)
+		fmt.Printf("loop at=%d, needed=%d, numStories=%d found=%d\n", at, needed, numStories, len(temp))
+		resultItems = append(resultItems, temp...)
+		at += needed
+	}
+	return resultItems[:numStories], nil
+}
+
+func getStories(ids []int, client hn.Client) []item {
 	type result struct {
 		idx  int
 		item item
 		err  error
 	}
 	resultCh := make(chan result)
-	for i := 0; i < numStories; i++ {
+	for i := 0; i < len(ids); i++ {
 		go func(idx, id int) {
 			hnItem, err := client.GetItem(id)
 			if err != nil {
@@ -71,7 +84,7 @@ func getStories(numStories int) ([]item, error) {
 		}(i, ids[i])
 	}
 	resultItems := make([]result, 0, 0)
-	for i := 0; i < numStories; i++ {
+	for i := 0; i < len(ids); i++ {
 		resultItems = append(resultItems, <-resultCh)
 	}
 	sort.Slice(resultItems, func(i, j int) bool {
@@ -86,7 +99,7 @@ func getStories(numStories int) ([]item, error) {
 			stories = append(stories, res.item)
 		}
 	}
-	return stories, nil
+	return stories
 }
 func isStoryLink(item item) bool {
 	return item.Type == "story" && item.URL != ""
