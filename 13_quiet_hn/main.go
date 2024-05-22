@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/felipempda/gophercises/13_quiet_hn/hn"
@@ -52,6 +53,7 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 var (
 	cache           []item
 	cacheExpiration time.Time
+	cacheMutex      sync.Mutex
 )
 
 // could Not simulate Race
@@ -75,7 +77,8 @@ func getCachedTopStories(numStories int) ([]item, error) {
 
 // could Not simulate Race
 func getCachedTopStoriesProf(numStories int) ([]item, error) {
-
+	cacheMutex.Lock()
+	defer cacheMutex.Unlock()
 	if time.Now().Sub(cacheExpiration) < 0 {
 		return cache, nil
 	}
