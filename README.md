@@ -16,6 +16,7 @@ Personal answers to exercises from https://gophercises.com/ by Jon Calhoun.
 - [10 - Blackjack Game](./10_blackjack/README.md)
 - [11 - Blackjack AI](./11_blackjack_ai/README.md)
 - [12 - File Renaming Tool](./12_renamer/README.md)
+- [13 - Quiet HN](./13_quiet_hn/README.md)
 
 
 ## Tools
